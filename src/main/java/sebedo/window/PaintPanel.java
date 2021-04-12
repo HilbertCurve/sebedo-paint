@@ -7,18 +7,27 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 
+/**
+ * Loads all graphics and graphics-related objects, such as listeners.
+ */
 public class PaintPanel extends JPanel {
     private static PaintPanel pPanel;
 
     private static boolean isPainting;
 
-    private static Point p0 = new Point(0, 0);
-    private static Point p1 = new Point(0, 0);
-
+    private static Point p0 = new Point(-1, -1);
+    private static Point p1 = new Point(-1, -1);
     private static Line2D l = new Line2D.Float(p0, p1);
 
+    /**
+     * Private constructor for class {@code PaintPanel}
+     * @see PaintPanel#get
+     */
     private PaintPanel() {
+        // get mouse and keyboard to focus on this panel
         this.requestFocusInWindow();
+
+        // add mouse listeners
         this.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -30,7 +39,7 @@ public class PaintPanel extends JPanel {
                 isPainting = true;
                 p0 = e.getPoint();
                 p1 = e.getPoint();
-                update(e);
+                update();
             }
 
             @Override
@@ -45,14 +54,14 @@ public class PaintPanel extends JPanel {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                isPainting = false;
+
             }
         });
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 p1 = e.getPoint();
-                update(e);
+                update();
             }
 
             @Override
@@ -62,6 +71,10 @@ public class PaintPanel extends JPanel {
         });
     }
 
+    /**
+     * Gets singleton PaintPanel
+     * @return Singleton PaintPanel {@code pPanel}
+     */
     public static PaintPanel get() {
         if (PaintPanel.pPanel == null) {
             PaintPanel.pPanel = new PaintPanel();
@@ -69,21 +82,28 @@ public class PaintPanel extends JPanel {
 
         return PaintPanel.pPanel;
     }
-
-    @Override
-    public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-        if (isPainting) {
-            g2d.setColor(Color.WHITE);
-            g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
-            g2d.setColor(Color.BLACK);
-        }
-        g2d.draw(l);
-    }
-
-    public void update(MouseEvent e) {
+    /**
+     * Updates line whenever listener is called, or when specified elsewhere (soon to update other graphics as well).
+     */
+    public void update() {
         l = new Line2D.Float(p0, p1);
         repaint();
     }
 
+    /**
+     * Overloaded paint method from JComponent, paints specified components while {@code isPainting == true}.
+     * @see JComponent#paint
+     */
+    @Override
+    public void paint(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        if (isPainting) {
+            // refresh background
+            g2d.setColor(Color.WHITE);
+            g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
+            // draw line
+            g2d.setColor(Color.BLACK);
+            g2d.draw(l);
+        }
+    }
 }

@@ -5,6 +5,10 @@ import sebedo.image.ImageLoader;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Loads the PaintPanel on the JFrame.
+ * @see PaintPanel
+ */
 public class Frame extends JFrame implements ImageLoader {
     private final int width, height;
     private final String title;
