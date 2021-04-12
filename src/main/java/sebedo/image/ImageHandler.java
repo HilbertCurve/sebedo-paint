@@ -1,4 +1,4 @@
-package sebedo.window.image;
+package sebedo.image;
 
 import javax.swing.*;
 import java.awt.*;

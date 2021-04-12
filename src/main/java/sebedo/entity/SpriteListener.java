@@ -1,4 +1,4 @@
-package sebedo.entity.sprite;
+package sebedo.entity;
 
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyListener;

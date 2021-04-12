@@ -1,7 +1,6 @@
-package sebedo.entity.sprite;
+package sebedo.entity;
 
-import sebedo.entity.Entity;
-import sebedo.window.image.ImageLoader;
+import sebedo.image.ImageLoader;
 
 import java.awt.*;
 import java.io.File;
@@ -58,6 +57,11 @@ public class Sprite extends Entity implements ImageLoader {
         }
 
         new Sprite(images);
+    }
+
+    @Override
+    public boolean update(float dt) {
+        return false;
     }
 
     public Sprite() throws NullPointerException { // might not have a null pointer exception here, I don't know

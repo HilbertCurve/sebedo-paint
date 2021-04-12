@@ -30,7 +30,7 @@ public abstract class Entity extends JComponent {
 
     public Rectangle hitBox;
 
-    public static final String imgDir = "src/resources/images/";
+    public static final String imgDir = "src/main/resources/images/";
 
     protected boolean changeLoadStatus(States state) {
         try {
@@ -45,9 +45,7 @@ public abstract class Entity extends JComponent {
     /**
      * I don't know what to do with this yet.
      */
-    public boolean update() {
-        return false;
-    }
+    public abstract boolean update(float dt);
 
     /*
      * The following few methods just help encapsulate position and size a little.
