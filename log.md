@@ -78,3 +78,7 @@ Oh my goodness, I'm been forced to watch "What the Health" in health class. It's
 Some time recently, I decided to try my hand at LWJGL and OpenGL, and I split this log into another branch attached to that project. While I don't intend to remove that project, I think I should experiment with Java2D before going into that kind of low-level stuff. First thing to do: get Java2D working.
 
 Easier than expected. Turns out it's just a part of java awt. Tonight, all I could get done was drawing a line with the mouse interactively (which considering the small amount of stuff I've done in the past few weeks over several libraries, I'm impressed), and next I intend to add some more painting functionalities like free-flow curves and lines. I'll pick up tomorrow.
+
+I guess I did. Today we had a project in computer science class today, so I couldn't work on this then. However, I finished that project rather quickly; it was supposed to last a week long, so now I get plenty of time to work on this. I got free-flow curves to work, I just need to fix a small bug with it.
+
+#### Close: 12/4/21 22:11

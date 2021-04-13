@@ -9,18 +9,19 @@ import java.awt.*;
  * Loads the PaintPanel on the JFrame.
  * @see PaintPanel
  */
-public class Frame extends JFrame implements ImageLoader {
+public class Frame extends JFrame implements ImageLoader, Runnable {
     private final int width, height;
     private final String title;
 
     private static Frame frame;
 
-    private static final PaintPanel pPanel = PaintPanel.get();
-
     private Frame() {
         this.width = 800;
         this.height = 400;
         this.title = "Sebedo Graphics Engine";
+        this.init(PaintPanel.get());
+        this.setVisible(true);
+        System.out.println("Hello!");
     }
 
     public static Frame get() {
@@ -46,15 +47,13 @@ public class Frame extends JFrame implements ImageLoader {
     }
 
     public void run() {
-        init(pPanel);
-        get().setVisible(true);
-        System.out.println("Hello!");
-
-        loop();
+        while (this.isEnabled()) {
+            PaintPanel.get().update();
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
-
-    public void loop() {
-
-    }
-
 }

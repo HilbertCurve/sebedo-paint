@@ -2,10 +2,10 @@ package sebedo.window;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.geom.Line2D;
+import java.awt.geom.QuadCurve2D;
+import java.util.Stack;
 
 /**
  * Loads all graphics and graphics-related objects, such as listeners.
@@ -13,21 +13,23 @@ import java.awt.geom.Line2D;
 public class PaintPanel extends JPanel {
     private static PaintPanel pPanel;
 
+    private final Stack<Object> drawStack = new Stack<>();
+
     private static boolean isPainting;
 
     private static Point p0 = new Point(-1, -1);
     private static Point p1 = new Point(-1, -1);
     private static Line2D l = new Line2D.Float(p0, p1);
+    private static int count;
+    private static Color color;
+    private static QuadCurve2D curve;
 
     /**
      * Private constructor for class {@code PaintPanel}
      * @see PaintPanel#get
      */
     private PaintPanel() {
-        // get mouse and keyboard to focus on this panel
-        this.requestFocusInWindow();
-
-        // add mouse listeners
+        // add mouse and key listeners
         this.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -62,6 +64,7 @@ public class PaintPanel extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 p1 = e.getPoint();
                 update();
+                p0 = p1;
             }
 
             @Override
@@ -69,6 +72,30 @@ public class PaintPanel extends JPanel {
 
             }
         });
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_1) {
+                    color = Color.BLUE;
+                } else {
+                    color = Color.BLACK;
+                }
+                update();
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                System.out.println("e");
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+
+        // get mouse and keyboard to focus on this panel
+        this.requestFocusInWindow();
     }
 
     /**
@@ -97,13 +124,8 @@ public class PaintPanel extends JPanel {
     @Override
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        if (isPainting) {
-            // refresh background
-            g2d.setColor(Color.WHITE);
-            g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
-            // draw line
-            g2d.setColor(Color.BLACK);
-            g2d.draw(l);
-        }
+        g2d.setColor(color);
+        g2d.draw(l);
+
     }
 }
