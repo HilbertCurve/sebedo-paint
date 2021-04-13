@@ -19,9 +19,11 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
         this.width = 800;
         this.height = 400;
         this.title = "Sebedo Graphics Engine";
-        this.init(PaintPanel.get());
+
+        this.init();
         this.setVisible(true);
-        System.out.println("Hello!");
+
+        System.out.println("Welcome to Sebedo Graphics Engine.");
     }
 
     public static Frame get() {
@@ -32,10 +34,8 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
         return frame;
     }
 
-    public void init(JPanel jPanel) {
-        add(jPanel);
-        JScrollPane s = new JScrollPane(jPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        add(s);
+    public void init() {
+        add(PaintPanel.get());
         pack();
 
         setTitle(title);
@@ -47,13 +47,15 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
     }
 
     public void run() {
+        PaintPanel.get().requestFocusInWindow();
+
         while (this.isEnabled()) {
-            PaintPanel.get().update();
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+            PaintPanel.get().update();
         }
     }
 }

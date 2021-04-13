@@ -3,12 +3,13 @@ package sebedo.window;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
-import java.awt.geom.QuadCurve2D;
 import java.util.Stack;
 
 /**
- * Loads all graphics and graphics-related objects, such as listeners.
+ * Loads all graphics and graphics-related objects, such as listeners.<br>
+ * TODO: make menu-bar
  */
 public class PaintPanel extends JPanel {
     private static PaintPanel pPanel;
@@ -16,13 +17,11 @@ public class PaintPanel extends JPanel {
     private final Stack<Object> drawStack = new Stack<>();
 
     private static boolean isPainting;
-
-    private static Point p0 = new Point(-1, -1);
-    private static Point p1 = new Point(-1, -1);
-    private static Line2D l = new Line2D.Float(p0, p1);
-    private static int count;
+    private static Point mouse0;
+    private static Point mouse1;
+    private static GeneralPath gp = new GeneralPath();
     private static Color color;
-    private static QuadCurve2D curve;
+    private static Color bgColor;
 
     /**
      * Private constructor for class {@code PaintPanel}
@@ -39,14 +38,15 @@ public class PaintPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 isPainting = true;
-                p0 = e.getPoint();
-                p1 = e.getPoint();
+                mouse0 = e.getPoint();
+                mouse1 = e.getPoint();
                 update();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 isPainting = false;
+                update();
             }
 
             @Override
@@ -62,9 +62,11 @@ public class PaintPanel extends JPanel {
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                p1 = e.getPoint();
-                update();
-                p0 = p1;
+                mouse1 = e.getPoint();
+                if (isPainting) {
+                    update();
+                }
+                mouse0 = mouse1;
             }
 
             @Override
@@ -85,7 +87,22 @@ public class PaintPanel extends JPanel {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                System.out.println("e");
+                if (e.getKeyCode() == KeyEvent.VK_C) {
+                    isPainting = false;
+                    drawStack.clear();
+                    update();
+                }
+                if (e.getKeyCode() == KeyEvent.VK_P) {
+                    isPainting = false;
+                    for (int i = 0; i < 10; i++) {
+                        if (!drawStack.empty()) {
+                            drawStack.pop();
+                        } else {
+                            break;
+                        }
+                    }
+                    update();
+                }
             }
 
             @Override
@@ -94,8 +111,10 @@ public class PaintPanel extends JPanel {
             }
         });
 
-        // get mouse and keyboard to focus on this panel
-        this.requestFocusInWindow();
+        // set default colors
+        color = Color.BLACK;
+        bgColor = Color.WHITE;
+
     }
 
     /**
@@ -113,8 +132,15 @@ public class PaintPanel extends JPanel {
      * Updates line whenever listener is called, or when specified elsewhere (soon to update other graphics as well).
      */
     public void update() {
-        l = new Line2D.Float(p0, p1);
+        Line2D l = new Line2D.Float(mouse0, mouse1);
+
+        if (isPainting) {
+            gp.append(l, true);
+            drawStack.add(gp);
+        }
+
         repaint();
+        gp = new GeneralPath();
     }
 
     /**
@@ -124,8 +150,15 @@ public class PaintPanel extends JPanel {
     @Override
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(color);
-        g2d.draw(l);
 
+        // redraw background (simulate refreshing the page)
+        g2d.setColor(bgColor);
+        g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
+
+        // redraw GeneralPath
+        g2d.setColor(color);
+        for (Object o : drawStack) {
+            g2d.draw((Shape) o);
+        }
     }
 }
