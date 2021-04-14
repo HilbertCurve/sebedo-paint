@@ -1,0 +1,7 @@
+{ "keybindings":[
+  { "keys": ["Control","c"], "action": "COPY"},
+  { "keys": ["Control","v"], "action": "PASTE"},
+  { "keys": ["Control","z"], "action": "UNDO"},
+  { "keys": ["Control","y"], "action": "REDO"},
+  { "keys": ["Control","w"], "action": "CLEAR"}
+]}
