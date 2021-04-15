@@ -8,15 +8,76 @@ import java.awt.geom.Line2D;
 import java.util.Stack;
 
 /**
- * Loads all graphics and graphics-related objects, such as listeners.<br>
- * TODO: make menu-bar
+ * Loads all graphics and graphics-related objects, such as listeners.
  */
 public class PaintPanel extends JPanel {
-    private static PaintPanel pPanel;
+    private static PaintPanel paintPanel;
 
-    private final Stack<Object> drawStack = new Stack<>();
+    public static final MenuBar menuBar = new MenuBar();
+
+    private static final Menu fileMenu = new Menu("File");
+    private static final MenuItem[] fileMenuItems = {
+            new MenuItem("Save"),
+            new MenuItem("Save as..."),
+            new MenuItem("New File")
+    };
+    private static final Menu editMenu = new Menu("Edit");
+    private static final MenuItem[] editMenuItems = {
+            new MenuItem("Copy"),
+            new MenuItem("Paste"),
+            new MenuItem("Clear"),
+            new MenuItem("Undo"),
+            new MenuItem("Redo"),
+            new MenuItem("")
+    };
+
+
+    static {
+        for (MenuItem m : fileMenuItems) {
+            fileMenu.add(m);
+        }
+
+        for (MenuItem m : editMenuItems) {
+            editMenu.add(m);
+        }
+
+        menuBar.add(fileMenu);
+        menuBar.add(editMenu);
+    }
 
     private static boolean isPainting;
+
+    static class DrawStack extends Stack<Object> {
+        private static DrawStack drawStack;
+
+        private DrawStack() {
+            new Stack<>();
+        }
+
+        public static DrawStack get() {
+            if (drawStack == null) {
+                drawStack = new DrawStack();
+            }
+
+            return drawStack;
+        }
+
+        public void undo() {
+            isPainting = false;
+            if (!DrawStack.get().empty()) {
+                DrawStack.get().pop();
+            }
+            PaintPanel.get().update();
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            PaintPanel.isPainting = false;
+            PaintPanel.get().update();
+        }
+    }
+
     private static Point mouse0;
     private static Point mouse1;
     private static GeneralPath gp = new GeneralPath();
@@ -28,6 +89,9 @@ public class PaintPanel extends JPanel {
      * @see PaintPanel#get
      */
     private PaintPanel() {
+        // add menu bar
+
+
         // add mouse and key listeners
         this.addMouseListener(new MouseListener() {
             @Override
@@ -88,16 +152,10 @@ public class PaintPanel extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_W) {
-                    isPainting = false;
-                    drawStack.clear();
-                    update();
+                    DrawStack.get().clear();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_U) {
-                    isPainting = false;
-                    if (!drawStack.empty()) {
-                        drawStack.pop();
-                    }
-                    update();
+                    DrawStack.get().undo();
                 }
             }
 
@@ -117,11 +175,11 @@ public class PaintPanel extends JPanel {
      * @return Singleton PaintPanel {@code pPanel}
      */
     public static PaintPanel get() {
-        if (PaintPanel.pPanel == null) {
-            PaintPanel.pPanel = new PaintPanel();
+        if (PaintPanel.paintPanel == null) {
+            PaintPanel.paintPanel = new PaintPanel();
         }
 
-        return PaintPanel.pPanel;
+        return PaintPanel.paintPanel;
     }
     /**
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
@@ -140,8 +198,8 @@ public class PaintPanel extends JPanel {
 
         if (isPainting) {
             gp.append(l, true);
-            if (!drawStack.contains(gp)) {
-                drawStack.add(gp);
+            if (!DrawStack.get().contains(gp)) {
+                DrawStack.get().add(gp);
             }
         } else {
             gp = null;
@@ -164,7 +222,7 @@ public class PaintPanel extends JPanel {
 
         // redraw GeneralPath
         g2d.setColor(color);
-        for (Object o : drawStack) {
+        for (Object o : DrawStack.get()) {
             g2d.draw((Shape) o);
         }
     }

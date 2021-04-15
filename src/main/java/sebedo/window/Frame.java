@@ -19,8 +19,9 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
 
     private Frame() {
         this.width = 800;
-        this.height = 400;
+        this.height = 600;
         this.title = "Sebedo Graphics Engine";
+        this.setMenuBar(PaintPanel.menuBar);
 
         this.init();
         this.setVisible(true);

@@ -45,9 +45,7 @@ public class KeyBindGetter {
     }
 
     public HashMap<ArrayList<Integer>, String> getKeyBind(Actions a) {
-        HashMap<ArrayList<Integer>, String> h;
-        
-        
+
 
         return null;
     }
