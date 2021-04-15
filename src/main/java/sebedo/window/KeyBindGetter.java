@@ -3,13 +3,16 @@ package sebedo.window;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.json.simple.JSONArray;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Parses keybinding JSON file, manipulates key bind settings, and returns them.<br>
+ * TODO: implement JSON reading.
+ */
 public class KeyBindGetter {
     private static KeyBindGetter kbg;
     private static Object obj;
@@ -19,16 +22,15 @@ public class KeyBindGetter {
             obj = new JSONParser().parse(new FileReader("src/main/java/sebedo/keybindings.json"));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
-            obj = null;
         }
-    }
-    
-    static class KeyBind {
-        static HashMap<ArrayList<Integer>, String> h;
-        
     }
 
     private static final JSONObject jo = (JSONObject) obj;
+
+    static class KeyBind {
+        static HashMap<ArrayList<Integer>, String> h;
+
+    }
 
     private KeyBindGetter() {
 
@@ -48,9 +50,5 @@ public class KeyBindGetter {
         
 
         return null;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Actions.CLEAR);
     }
 }

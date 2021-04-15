@@ -15,6 +15,8 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
 
     private static Frame frame;
 
+    private static double dt;
+
     private Frame() {
         this.width = 800;
         this.height = 400;
@@ -51,7 +53,7 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
 
         while (this.isEnabled()) {
             try {
-                Thread.sleep(1);
+                Thread.sleep(0, 1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

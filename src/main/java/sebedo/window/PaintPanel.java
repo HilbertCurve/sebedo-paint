@@ -87,19 +87,15 @@ public class PaintPanel extends JPanel {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_C) {
+                if (e.getKeyCode() == KeyEvent.VK_W) {
                     isPainting = false;
                     drawStack.clear();
                     update();
                 }
-                if (e.getKeyCode() == KeyEvent.VK_P) {
+                if (e.getKeyCode() == KeyEvent.VK_U) {
                     isPainting = false;
-                    for (int i = 0; i < 10; i++) {
-                        if (!drawStack.empty()) {
-                            drawStack.pop();
-                        } else {
-                            break;
-                        }
+                    if (!drawStack.empty()) {
+                        drawStack.pop();
                     }
                     update();
                 }
@@ -114,7 +110,6 @@ public class PaintPanel extends JPanel {
         // set default colors
         color = Color.BLACK;
         bgColor = Color.WHITE;
-
     }
 
     /**
@@ -129,18 +124,30 @@ public class PaintPanel extends JPanel {
         return PaintPanel.pPanel;
     }
     /**
-     * Updates line whenever listener is called, or when specified elsewhere (soon to update other graphics as well).
+     * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
     public void update() {
-        Line2D l = new Line2D.Float(mouse0, mouse1);
+        if (mouse0 == null || mouse1 == null) {
+            mouse0 = getMousePosition();
+            mouse1 = getMousePosition();
+        }
+
+        Line2D l = new Line2D.Double(mouse0, mouse1);
+
+        if (gp == null) {
+            gp = new GeneralPath();
+        }
 
         if (isPainting) {
             gp.append(l, true);
-            drawStack.add(gp);
+            if (!drawStack.contains(gp)) {
+                drawStack.add(gp);
+            }
+        } else {
+            gp = null;
         }
 
         repaint();
-        gp = new GeneralPath();
     }
 
     /**
