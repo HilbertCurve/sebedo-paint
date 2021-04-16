@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.util.Arrays;
 import java.util.Stack;
 
 /**
- * Loads all graphics and graphics-related objects, such as listeners.
+ * Loads all graphics and graphics-related objects, such as listeners.<br>
+ * TODO: fix key binds
  */
-public class PaintPanel extends JPanel {
+public class PaintPanel extends JPanel implements Actions {
     private static PaintPanel paintPanel;
 
     public static final MenuBar menuBar = new MenuBar();
@@ -77,6 +79,15 @@ public class PaintPanel extends JPanel {
             PaintPanel.get().update();
         }
     }
+
+    enum Tools {
+        FREEHAND,
+        CIRCLE,
+        SQUARE,
+        CURVE
+    }
+
+    private static Tools selectedTool = Tools.FREEHAND;
 
     private static Point mouse0;
     private static Point mouse1;
@@ -185,6 +196,7 @@ public class PaintPanel extends JPanel {
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
     public void update() {
+
         if (mouse0 == null || mouse1 == null) {
             mouse0 = getMousePosition();
             mouse1 = getMousePosition();

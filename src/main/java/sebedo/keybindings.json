@@ -1,7 +1,8 @@
 { "keybindings":[
-  { "keys": ["Control","c"], "action": "COPY"},
-  { "keys": ["Control","v"], "action": "PASTE"},
-  { "keys": ["Control","z"], "action": "UNDO"},
-  { "keys": ["Control","y"], "action": "REDO"},
-  { "keys": ["Control","w"], "action": "CLEAR"}
+  { "keys": ["Control","c"], "action": 0},
+  { "keys": ["Control","v"], "action": 1},
+  { "keys": ["Control","z"], "action": 2},
+  { "keys": ["Control","y"], "action": 3},
+  { "keys": ["Control","w"], "action": 4},
+  { "keys": ["Tab"], "action": 5}
 ]}

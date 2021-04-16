@@ -6,30 +6,34 @@ import org.json.simple.parser.ParseException;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Parses keybinding JSON file, manipulates key bind settings, and returns them.<br>
  * TODO: implement JSON reading.
  */
-public class KeyBindGetter {
-    private static KeyBindGetter kbg;
-    private static Object obj;
+public class KeyBindGetter implements Actions {
+    private static KeyBindGetter keyBindGetter;
+    private static final JSONParser jsonParser = new JSONParser();
+    // I have no idea why I have to use long here.
+    private static final HashMap<String[], Long> keyBinds = new HashMap<>();
 
     static {
-        try {
-            obj = new JSONParser().parse(new FileReader("src/main/java/sebedo/keybindings.json"));
+        try (FileReader reader = new FileReader("src/main/java/sebedo/keybindings.json")) {
+            // read JSON file
+            JSONObject obj = (JSONObject) jsonParser.parse(reader);
+            // cast read JSON file into a JSONArray
+            JSONArray jsonArray = (JSONArray) obj.get("keybindings");
+            // put values into keyBinds field
+            for (Object o : jsonArray) {
+                JSONObject jsonO = (JSONObject) o;
+                keyBinds.put((String[]) jsonO.get("key"), (Long) jsonO.get("action"));
+            }
+
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-    }
-
-    private static final JSONObject jo = (JSONObject) obj;
-
-    static class KeyBind {
-        static HashMap<ArrayList<Integer>, String> h;
-
     }
 
     private KeyBindGetter() {
@@ -37,16 +41,14 @@ public class KeyBindGetter {
     }
 
     public KeyBindGetter get() {
-        if (kbg == null) {
-            kbg = new KeyBindGetter();
+        if (keyBindGetter == null) {
+            keyBindGetter = new KeyBindGetter();
         }
 
-        return kbg;
+        return keyBindGetter;
     }
 
-    public HashMap<ArrayList<Integer>, String> getKeyBind(Actions a) {
+    public static void main(String[] args) {
 
-
-        return null;
     }
 }
