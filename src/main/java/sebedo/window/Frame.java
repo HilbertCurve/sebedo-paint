@@ -44,14 +44,14 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
         setTitle(title);
         setSize(this.width, this.height);
         setLocationRelativeTo(null);
-        setBackground(new Color(0,0,0));
+        setBackground(Color.WHITE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImage(loadImage("src/main/resources/images/cookie.png"));
+
+        PaintPanel.get().requestFocusInWindow();
     }
 
     public void run() {
-        PaintPanel.get().requestFocusInWindow();
-
         while (this.isEnabled()) {
             try {
                 Thread.sleep(0, 1000);

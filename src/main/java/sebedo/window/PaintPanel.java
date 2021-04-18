@@ -3,9 +3,9 @@ package sebedo.window;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.util.Arrays;
+import java.awt.geom.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -30,7 +30,7 @@ public class PaintPanel extends JPanel implements Actions {
             new MenuItem("Clear"),
             new MenuItem("Undo"),
             new MenuItem("Redo"),
-            new MenuItem("")
+            new MenuItem("Select Tool...")
     };
 
 
@@ -82,27 +82,31 @@ public class PaintPanel extends JPanel implements Actions {
 
     enum Tools {
         FREEHAND,
-        CIRCLE,
-        SQUARE,
-        CURVE
+        ELLIPSE,
+        RECTANGLE,
+        CURVE,
+        SHAPE,
+        SELECT
     }
 
     private static Tools selectedTool = Tools.FREEHAND;
 
-    private static Point mouse0;
-    private static Point mouse1;
+    private static Point mouse0 = get().getMousePosition();
+    private static Point mouse1 = get().getMousePosition();
     private static GeneralPath gp = new GeneralPath();
+    private static Ellipse2D e = new Ellipse2D.Double();
+    private static Rectangle2D r = new Rectangle2D.Double();
     private static Color color;
     private static Color bgColor;
+
+    // TODO: finish pressedKeys
+    private static final Set<Integer> pressedKeys = new HashSet<>();
 
     /**
      * Private constructor for class {@code PaintPanel}
      * @see PaintPanel#get
      */
     private PaintPanel() {
-        // add menu bar
-
-
         // add mouse and key listeners
         this.addMouseListener(new MouseListener() {
             @Override
@@ -115,13 +119,11 @@ public class PaintPanel extends JPanel implements Actions {
                 isPainting = true;
                 mouse0 = e.getPoint();
                 mouse1 = e.getPoint();
-                update();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 isPainting = false;
-                update();
             }
 
             @Override
@@ -137,11 +139,7 @@ public class PaintPanel extends JPanel implements Actions {
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                mouse1 = e.getPoint();
-                if (isPainting) {
-                    update();
-                }
-                mouse0 = mouse1;
+
             }
 
             @Override
@@ -152,27 +150,23 @@ public class PaintPanel extends JPanel implements Actions {
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_1) {
-                    color = Color.BLUE;
-                } else {
-                    color = Color.BLACK;
-                }
-                update();
+                pressedKeys.add(e.getKeyCode());
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_W) {
-                    DrawStack.get().clear();
-                }
-                if (e.getKeyCode() == KeyEvent.VK_U) {
-                    DrawStack.get().undo();
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_U: DrawStack.get().undo(); break;
+                    case KeyEvent.VK_W: DrawStack.get().clear(); break;
+                    case KeyEvent.VK_F: selectedTool = Tools.FREEHAND; break;
+                    case KeyEvent.VK_E: selectedTool = Tools.ELLIPSE; break;
+                    case KeyEvent.VK_R: selectedTool = Tools.RECTANGLE; break;
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-
+                pressedKeys.remove(e.getKeyCode());
             }
         });
 
@@ -192,29 +186,93 @@ public class PaintPanel extends JPanel implements Actions {
 
         return PaintPanel.paintPanel;
     }
-    /**
-     * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
-     */
-    public void update() {
 
-        if (mouse0 == null || mouse1 == null) {
-            mouse0 = getMousePosition();
-            mouse1 = getMousePosition();
+    private void freeHandDraw() {
+        Line2D l;
+        mouse0 = getMousePosition();
+        mouse1 = getMousePosition();
+        boolean mouseInBounds = (mouse0 != null && mouse1 != null);
+
+        if (mouseInBounds) {
+            l = new Line2D.Double(mouse0, mouse1);
+        } else {
+            l = new Line2D.Double();
         }
-
-        Line2D l = new Line2D.Double(mouse0, mouse1);
 
         if (gp == null) {
             gp = new GeneralPath();
         }
 
         if (isPainting) {
-            gp.append(l, true);
+            if (mouseInBounds) {
+                gp.append(l, true);
+            }
             if (!DrawStack.get().contains(gp)) {
                 DrawStack.get().add(gp);
             }
         } else {
-            gp = null;
+            gp = new GeneralPath();
+        }
+    }
+
+    private void ellipseDraw() {
+        if (mouse0 == null) {
+            mouse0 = getMousePosition();
+        }
+
+        if (getMousePosition() != null) {
+            mouse1 = getMousePosition();
+        }
+
+        if (e == null) {
+            e = new Ellipse2D.Double();
+        }
+
+        if (isPainting) {
+            e.setFrameFromDiagonal(mouse0, mouse1);
+
+            if (!DrawStack.get().contains(e)) {
+                DrawStack.get().add(e);
+            }
+        } else {
+            e = null;
+            mouse0 = null;
+        }
+    }
+
+    private void rectangleDraw() {
+        if (mouse0 == null) {
+            mouse0 = getMousePosition();
+        }
+
+        if (getMousePosition() != null) {
+            mouse1 = getMousePosition();
+        }
+
+        if (r == null) {
+            r = new Rectangle2D.Double();
+        }
+
+        if (isPainting) {
+            r.setFrameFromDiagonal(mouse0, mouse1);
+
+            if (!DrawStack.get().contains(r)) {
+                DrawStack.get().add(r);
+            }
+        } else {
+            r = null;
+            mouse0 = null;
+        }
+    }
+
+    /**
+     * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
+     */
+    public void update() {
+        switch (selectedTool) {
+            case FREEHAND: freeHandDraw(); break;
+            case ELLIPSE: ellipseDraw(); break;
+            case RECTANGLE: rectangleDraw(); break;
         }
 
         repaint();
