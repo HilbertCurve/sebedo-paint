@@ -5,14 +5,14 @@ package sebedo.window;
  *
  */
 public interface Actions {
-    int COPY = 0;
-    int PASTE = 1;
-    int UNDO = 2;
-    int REDO = 3;
-    int CLEAR = 4;
-    int SWITCH_TOOL = 5;
+    long COPY = 0;
+    long PASTE = 1;
+    long UNDO = 2;
+    long REDO = 3;
+    long CLEAR = 4;
+    long SWITCH_TOOL = 5;
 
-    int[] actions = {
+    long[] actions = {
             COPY,
             PASTE,
             UNDO,

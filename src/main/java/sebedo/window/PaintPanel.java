@@ -11,6 +11,8 @@ import java.util.Stack;
 /**
  * Loads all graphics and graphics-related objects, such as listeners.<br>
  * TODO: fix key binds
+ * <br>
+ * TODO: bind menu items to respective actions
  */
 public class PaintPanel extends JPanel implements Actions {
     private static PaintPanel paintPanel;
@@ -151,6 +153,9 @@ public class PaintPanel extends JPanel implements Actions {
             @Override
             public void keyTyped(KeyEvent e) {
                 pressedKeys.add(e.getKeyCode());
+                if (!pressedKeys.isEmpty()) {
+
+                }
             }
 
             @Override
@@ -216,11 +221,12 @@ public class PaintPanel extends JPanel implements Actions {
     }
 
     private void ellipseDraw() {
-        if (mouse0 == null) {
-            mouse0 = getMousePosition();
-        }
 
         if (getMousePosition() != null) {
+            if (mouse0 == null) {
+                mouse0 = getMousePosition();
+            }
+
             mouse1 = getMousePosition();
         }
 
@@ -229,7 +235,11 @@ public class PaintPanel extends JPanel implements Actions {
         }
 
         if (isPainting) {
-            e.setFrameFromDiagonal(mouse0, mouse1);
+            try {
+                e.setFrameFromDiagonal(mouse0, mouse1);
+            } catch (NullPointerException ignored) {
+
+            }
 
             if (!DrawStack.get().contains(e)) {
                 DrawStack.get().add(e);

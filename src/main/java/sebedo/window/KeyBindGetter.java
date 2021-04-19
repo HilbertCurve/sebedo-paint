@@ -7,17 +7,15 @@ import org.json.simple.parser.ParseException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Parses keybinding JSON file, manipulates key bind settings, and returns them.<br>
- * TODO: implement JSON reading.
+ * Parses keybinding JSON file, manipulates key bind settings, and returns them.
  */
 public class KeyBindGetter implements Actions {
     private static KeyBindGetter keyBindGetter;
     private static final JSONParser jsonParser = new JSONParser();
     // I have no idea why I have to use long here.
-    private static final HashMap<String[], Long> keyBinds = new HashMap<>();
+    private static final HashMap<Long, String[]> keyBinds = new HashMap<>();
 
     static {
         try (FileReader reader = new FileReader("src/main/java/sebedo/keybindings.json")) {
@@ -28,7 +26,14 @@ public class KeyBindGetter implements Actions {
             // put values into keyBinds field
             for (Object o : jsonArray) {
                 JSONObject jsonO = (JSONObject) o;
-                keyBinds.put((String[]) jsonO.get("key"), (Long) jsonO.get("action"));
+                JSONArray jsonA = (JSONArray) jsonO.get("keys");
+                String[] keys = new String[jsonA.size()];
+
+                for (int i = 0; i < keys.length; i++) {
+                    keys[i] = (String) jsonA.get(i);
+                }
+
+                keyBinds.put((Long) jsonO.get("action"), keys);
             }
 
         } catch (IOException | ParseException e) {
@@ -46,9 +51,5 @@ public class KeyBindGetter implements Actions {
         }
 
         return keyBindGetter;
-    }
-
-    public static void main(String[] args) {
-
     }
 }
