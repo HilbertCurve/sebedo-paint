@@ -20,4 +20,8 @@ public interface Actions {
             CLEAR,
             SWITCH_TOOL
     };
+
+    default void doAction(long action) {
+
+    }
 }

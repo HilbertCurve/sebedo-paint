@@ -6,18 +6,22 @@ import org.json.simple.parser.ParseException;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
- * Parses keybinding JSON file, manipulates key bind settings, and returns them.
+ * Parses keybindings JSON file, manipulates key bind settings, and returns them.
  */
-public class KeyBindGetter implements Actions {
-    private static KeyBindGetter keyBindGetter;
+public class KeyBindParser implements Actions {
+    private static KeyBindParser keyBindParser;
     private static final JSONParser jsonParser = new JSONParser();
+
     // I have no idea why I have to use long here.
     private static final HashMap<Long, String[]> keyBinds = new HashMap<>();
 
-    static {
+    public static void init() {
         try (FileReader reader = new FileReader("src/main/java/sebedo/keybindings.json")) {
             // read JSON file
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
@@ -41,15 +45,7 @@ public class KeyBindGetter implements Actions {
         }
     }
 
-    private KeyBindGetter() {
-
-    }
-
-    public KeyBindGetter get() {
-        if (keyBindGetter == null) {
-            keyBindGetter = new KeyBindGetter();
-        }
-
-        return keyBindGetter;
+    public static Collection<String> getKeyBind(long action) {
+        return new HashSet<>(Arrays.asList(keyBinds.get(action)));
     }
 }

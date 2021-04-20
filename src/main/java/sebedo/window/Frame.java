@@ -53,12 +53,8 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
 
     public void run() {
         while (this.isEnabled()) {
-            try {
-                Thread.sleep(0, 1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
             PaintPanel.get().update();
+            System.out.println(PaintPanel.pressedKeys);
         }
     }
 }

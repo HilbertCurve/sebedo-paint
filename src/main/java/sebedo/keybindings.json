@@ -1,8 +1,8 @@
 { "keybindings":[
-  { "keys": ["Control","c"], "action": 0},
-  { "keys": ["Control","v"], "action": 1},
-  { "keys": ["Control","z"], "action": 2},
-  { "keys": ["Control","y"], "action": 3},
-  { "keys": ["Control","w"], "action": 4},
+  { "keys": ["Ctrl","C"], "action": 0},
+  { "keys": ["Ctrl","V"], "action": 1},
+  { "keys": ["Ctrl","Z"], "action": 2},
+  { "keys": ["Ctrl","Y"], "action": 3},
+  { "keys": ["Ctrl","W"], "action": 4},
   { "keys": ["Tab"], "action": 5}
 ]}

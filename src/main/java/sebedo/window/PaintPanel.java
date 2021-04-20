@@ -10,8 +10,6 @@ import java.util.Stack;
 
 /**
  * Loads all graphics and graphics-related objects, such as listeners.<br>
- * TODO: fix key binds
- * <br>
  * TODO: bind menu items to respective actions
  */
 public class PaintPanel extends JPanel implements Actions {
@@ -52,8 +50,8 @@ public class PaintPanel extends JPanel implements Actions {
     private static boolean isPainting;
 
     static class DrawStack extends Stack<Object> {
-        private static DrawStack drawStack;
 
+        private static DrawStack drawStack;
         private DrawStack() {
             new Stack<>();
         }
@@ -80,7 +78,9 @@ public class PaintPanel extends JPanel implements Actions {
             PaintPanel.isPainting = false;
             PaintPanel.get().update();
         }
+
     }
+
 
     enum Tools {
         FREEHAND,
@@ -90,10 +90,10 @@ public class PaintPanel extends JPanel implements Actions {
         SHAPE,
         SELECT
     }
-
     private static Tools selectedTool = Tools.FREEHAND;
 
     private static Point mouse0 = get().getMousePosition();
+
     private static Point mouse1 = get().getMousePosition();
     private static GeneralPath gp = new GeneralPath();
     private static Ellipse2D e = new Ellipse2D.Double();
@@ -101,14 +101,16 @@ public class PaintPanel extends JPanel implements Actions {
     private static Color color;
     private static Color bgColor;
 
-    // TODO: finish pressedKeys
-    private static final Set<Integer> pressedKeys = new HashSet<>();
+    public static final Set<String> pressedKeys = new HashSet<>();
 
     /**
      * Private constructor for class {@code PaintPanel}
      * @see PaintPanel#get
      */
     private PaintPanel() {
+        // initialize KeyBindParser and it's fields
+        KeyBindParser.init();
+
         // add mouse and key listeners
         this.addMouseListener(new MouseListener() {
             @Override
@@ -151,27 +153,26 @@ public class PaintPanel extends JPanel implements Actions {
         });
         this.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                pressedKeys.add(e.getKeyCode());
+            public synchronized void keyPressed(KeyEvent e) {
+                pressedKeys.add(KeyEvent.getKeyText(e.getKeyCode()));
+
                 if (!pressedKeys.isEmpty()) {
-
+                    for (long l : actions) {
+                        if (pressedKeys.containsAll(KeyBindParser.getKeyBind(l))) {
+                            doAction(l);
+                        }
+                    }
                 }
             }
 
             @Override
-            public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_U: DrawStack.get().undo(); break;
-                    case KeyEvent.VK_W: DrawStack.get().clear(); break;
-                    case KeyEvent.VK_F: selectedTool = Tools.FREEHAND; break;
-                    case KeyEvent.VK_E: selectedTool = Tools.ELLIPSE; break;
-                    case KeyEvent.VK_R: selectedTool = Tools.RECTANGLE; break;
-                }
+            public synchronized void keyReleased(KeyEvent e) {
+                pressedKeys.remove(KeyEvent.getKeyText(e.getKeyCode()));
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {
-                pressedKeys.remove(e.getKeyCode());
+            public void keyTyped(KeyEvent e) {
+
             }
         });
 
@@ -264,7 +265,11 @@ public class PaintPanel extends JPanel implements Actions {
         }
 
         if (isPainting) {
-            r.setFrameFromDiagonal(mouse0, mouse1);
+            try {
+                r.setFrameFromDiagonal(mouse0, mouse1);
+            } catch (NullPointerException ignored) {
+
+            }
 
             if (!DrawStack.get().contains(r)) {
                 DrawStack.get().add(r);
@@ -286,6 +291,18 @@ public class PaintPanel extends JPanel implements Actions {
         }
 
         repaint();
+    }
+
+    @Override
+    public void doAction(long action) {
+        switch ((int) action) {
+            case (int) COPY: break; //TODO: make copy
+            case (int) PASTE: break; //TODO: make paste
+            case (int) UNDO: DrawStack.get().undo();
+            case (int) REDO: break; //TODO: make redo
+            case (int) CLEAR: DrawStack.get().clear();
+            case (int) SWITCH_TOOL: break; //TODO: make switch tool
+        }
     }
 
     /**
