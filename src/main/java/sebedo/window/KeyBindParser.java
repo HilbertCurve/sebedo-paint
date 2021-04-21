@@ -14,14 +14,13 @@ import java.util.HashSet;
 /**
  * Parses keybindings JSON file, manipulates key bind settings, and returns them.
  */
-public class KeyBindParser implements Actions {
-    private static KeyBindParser keyBindParser;
+public abstract class KeyBindParser implements Actions {
     private static final JSONParser jsonParser = new JSONParser();
 
     // I have no idea why I have to use long here.
     private static final HashMap<Long, String[]> keyBinds = new HashMap<>();
 
-    public static void init() {
+    public static void parseKeyBinds() {
         try (FileReader reader = new FileReader("src/main/java/sebedo/keybindings.json")) {
             // read JSON file
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
@@ -29,10 +28,12 @@ public class KeyBindParser implements Actions {
             JSONArray jsonArray = (JSONArray) obj.get("keybindings");
             // put values into keyBinds field
             for (Object o : jsonArray) {
+                // cast entry to a JSONObject
                 JSONObject jsonO = (JSONObject) o;
+                // cast JSONObject to a JSONArray
                 JSONArray jsonA = (JSONArray) jsonO.get("keys");
+                // put each value into keybindings array
                 String[] keys = new String[jsonA.size()];
-
                 for (int i = 0; i < keys.length; i++) {
                     keys[i] = (String) jsonA.get(i);
                 }

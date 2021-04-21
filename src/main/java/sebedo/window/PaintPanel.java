@@ -4,26 +4,76 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Loads all graphics and graphics-related objects, such as listeners.<br>
  * TODO: bind menu items to respective actions
  */
 public class PaintPanel extends JPanel implements Actions {
+    static class DrawStack extends Stack<Object> {
+
+        private static DrawStack drawStack;
+        private static final Stack<Object> undoStack = new Stack<>();
+        private DrawStack() {
+
+        }
+
+        public static DrawStack get() {
+            if (drawStack == null) {
+                drawStack = new DrawStack();
+            }
+
+            return drawStack;
+        }
+
+        public void undo() {
+            isPainting = false;
+            if (!DrawStack.get().empty()) {
+                Object tmp = DrawStack.get().pop();
+                DrawStack.undoStack.add(tmp);
+            }
+            PaintPanel.get().update();
+        }
+
+        public void redo() {
+            isPainting = false;
+            if (!DrawStack.undoStack.empty()) {
+                Object tmp = DrawStack.undoStack.pop();
+                DrawStack.drawStack.add(tmp);
+            }
+            PaintPanel.get().update();
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            PaintPanel.isPainting = false;
+            PaintPanel.get().update();
+        }
+
+    }
+
+    enum Tools {
+        FREEHAND,
+        ELLIPSE,
+        RECTANGLE,
+        CURVE,
+        SHAPE,
+        SELECT
+    }
+
     private static PaintPanel paintPanel;
-
     public static final MenuBar menuBar = new MenuBar();
-
     private static final Menu fileMenu = new Menu("File");
     private static final MenuItem[] fileMenuItems = {
             new MenuItem("Save"),
             new MenuItem("Save as..."),
             new MenuItem("New File")
     };
+
     private static final Menu editMenu = new Menu("Edit");
+
     private static final MenuItem[] editMenuItems = {
             new MenuItem("Copy"),
             new MenuItem("Paste"),
@@ -32,7 +82,6 @@ public class PaintPanel extends JPanel implements Actions {
             new MenuItem("Redo"),
             new MenuItem("Select Tool...")
     };
-
 
     static {
         for (MenuItem m : fileMenuItems) {
@@ -47,59 +96,17 @@ public class PaintPanel extends JPanel implements Actions {
         menuBar.add(editMenu);
     }
 
-    private static boolean isPainting;
-
-    static class DrawStack extends Stack<Object> {
-
-        private static DrawStack drawStack;
-        private DrawStack() {
-            new Stack<>();
-        }
-
-        public static DrawStack get() {
-            if (drawStack == null) {
-                drawStack = new DrawStack();
-            }
-
-            return drawStack;
-        }
-
-        public void undo() {
-            isPainting = false;
-            if (!DrawStack.get().empty()) {
-                DrawStack.get().pop();
-            }
-            PaintPanel.get().update();
-        }
-
-        @Override
-        public void clear() {
-            super.clear();
-            PaintPanel.isPainting = false;
-            PaintPanel.get().update();
-        }
-
-    }
-
-
-    enum Tools {
-        FREEHAND,
-        ELLIPSE,
-        RECTANGLE,
-        CURVE,
-        SHAPE,
-        SELECT
-    }
     private static Tools selectedTool = Tools.FREEHAND;
+    private static int toolIndex = 0;
 
     private static Point mouse0 = get().getMousePosition();
-
     private static Point mouse1 = get().getMousePosition();
     private static GeneralPath gp = new GeneralPath();
     private static Ellipse2D e = new Ellipse2D.Double();
     private static Rectangle2D r = new Rectangle2D.Double();
     private static Color color;
     private static Color bgColor;
+    private static boolean isPainting;
 
     public static final Set<String> pressedKeys = new HashSet<>();
 
@@ -108,8 +115,8 @@ public class PaintPanel extends JPanel implements Actions {
      * @see PaintPanel#get
      */
     private PaintPanel() {
-        // initialize KeyBindParser and it's fields
-        KeyBindParser.init();
+        // parse keybindings
+        KeyBindParser.parseKeyBinds();
 
         // add mouse and key listeners
         this.addMouseListener(new MouseListener() {
@@ -163,6 +170,7 @@ public class PaintPanel extends JPanel implements Actions {
                         }
                     }
                 }
+                System.out.println(pressedKeys.toString());
             }
 
             @Override
@@ -191,6 +199,17 @@ public class PaintPanel extends JPanel implements Actions {
         }
 
         return PaintPanel.paintPanel;
+    }
+
+    private void switchTool() {
+        Tools[] toolsArr = Tools.values();
+        if (toolIndex + 1 < toolsArr.length) {
+            toolIndex++;
+        } else {
+            toolIndex = 0;
+        }
+        selectedTool = toolsArr[toolIndex];
+        System.out.println(selectedTool.toString());
     }
 
     private void freeHandDraw() {
@@ -298,10 +317,10 @@ public class PaintPanel extends JPanel implements Actions {
         switch ((int) action) {
             case (int) COPY: break; //TODO: make copy
             case (int) PASTE: break; //TODO: make paste
-            case (int) UNDO: DrawStack.get().undo();
-            case (int) REDO: break; //TODO: make redo
-            case (int) CLEAR: DrawStack.get().clear();
-            case (int) SWITCH_TOOL: break; //TODO: make switch tool
+            case (int) UNDO: DrawStack.get().undo(); break;
+            case (int) REDO: DrawStack.get().redo(); break;
+            case (int) CLEAR: DrawStack.get().clear(); break;
+            case (int) SWITCH_TOOL: switchTool(); break;
         }
     }
 
@@ -311,16 +330,20 @@ public class PaintPanel extends JPanel implements Actions {
      */
     @Override
     public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+        try {
+            Graphics2D g2d = (Graphics2D) g;
 
-        // redraw background (simulate refreshing the page)
-        g2d.setColor(bgColor);
-        g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
+            // redraw background (simulate refreshing the page)
+            g2d.setColor(bgColor);
+            g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
-        // redraw GeneralPath
-        g2d.setColor(color);
-        for (Object o : DrawStack.get()) {
-            g2d.draw((Shape) o);
+            // redraw GeneralPath
+            g2d.setColor(color);
+            for (Object o : DrawStack.get()) {
+                g2d.draw((Shape) o);
+            }
+        } catch (Exception ignored) {
+
         }
     }
 }

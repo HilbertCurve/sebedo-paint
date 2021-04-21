@@ -51,10 +51,14 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
         PaintPanel.get().requestFocusInWindow();
     }
 
-    public void run() {
+
+    /**
+     * Updates the PaintPanel repeatedly.
+     */
+    @Override
+    public synchronized void run() {
         while (this.isEnabled()) {
             PaintPanel.get().update();
-            System.out.println(PaintPanel.pressedKeys);
         }
     }
 }

@@ -4,5 +4,5 @@
   { "keys": ["Ctrl","Z"], "action": 2},
   { "keys": ["Ctrl","Y"], "action": 3},
   { "keys": ["Ctrl","W"], "action": 4},
-  { "keys": ["Tab"], "action": 5}
+  { "keys": ["Ctrl","T"], "action": 5}
 ]}

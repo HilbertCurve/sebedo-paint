@@ -4,10 +4,9 @@ import sebedo.window.Frame;
 /**
  * Loads the frame singleton made by the Frame class.
  * @see Frame
+ * @see Frame#run
  */
 public class Main implements ImageLoader {
-    // the frame is the actual window thing, and is located in Frame
-
     public static Frame frame;
 
     public static void main(String[] args) {

@@ -21,7 +21,5 @@ public interface Actions {
             SWITCH_TOOL
     };
 
-    default void doAction(long action) {
-
-    }
+    void doAction(long action);
 }
