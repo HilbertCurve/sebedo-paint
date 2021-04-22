@@ -11,59 +11,8 @@ import java.util.*;
  * TODO: bind menu items to respective actions
  */
 public class PaintPanel extends JPanel implements Actions {
-    static class DrawStack extends Stack<Object> {
-
-        private static DrawStack drawStack;
-        private static final Stack<Object> undoStack = new Stack<>();
-        private DrawStack() {
-
-        }
-
-        public static DrawStack get() {
-            if (drawStack == null) {
-                drawStack = new DrawStack();
-            }
-
-            return drawStack;
-        }
-
-        public void undo() {
-            isPainting = false;
-            if (!DrawStack.get().empty()) {
-                Object tmp = DrawStack.get().pop();
-                DrawStack.undoStack.add(tmp);
-            }
-            PaintPanel.get().update();
-        }
-
-        public void redo() {
-            isPainting = false;
-            if (!DrawStack.undoStack.empty()) {
-                Object tmp = DrawStack.undoStack.pop();
-                DrawStack.drawStack.add(tmp);
-            }
-            PaintPanel.get().update();
-        }
-
-        @Override
-        public void clear() {
-            super.clear();
-            PaintPanel.isPainting = false;
-            PaintPanel.get().update();
-        }
-
-    }
-
-    enum Tools {
-        FREEHAND,
-        ELLIPSE,
-        RECTANGLE,
-        CURVE,
-        SHAPE,
-        SELECT
-    }
-
     private static PaintPanel paintPanel;
+
     public static final MenuBar menuBar = new MenuBar();
     private static final Menu fileMenu = new Menu("File");
     private static final MenuItem[] fileMenuItems = {
@@ -101,12 +50,13 @@ public class PaintPanel extends JPanel implements Actions {
 
     private static Point mouse0 = get().getMousePosition();
     private static Point mouse1 = get().getMousePosition();
-    private static GeneralPath gp = new GeneralPath();
+    private static Path2D.Double gp = new Path2D.Double();
     private static Ellipse2D e = new Ellipse2D.Double();
     private static Rectangle2D r = new Rectangle2D.Double();
     private static Color color;
     private static Color bgColor;
-    private static boolean isPainting;
+
+    public static boolean isPainting;
 
     public static final Set<String> pressedKeys = new HashSet<>();
 
@@ -225,7 +175,7 @@ public class PaintPanel extends JPanel implements Actions {
         }
 
         if (gp == null) {
-            gp = new GeneralPath();
+            gp = new Path2D.Double();
         }
 
         if (isPainting) {
@@ -236,7 +186,7 @@ public class PaintPanel extends JPanel implements Actions {
                 DrawStack.get().add(gp);
             }
         } else {
-            gp = new GeneralPath();
+            gp = new Path2D.Double();
         }
     }
 
@@ -340,7 +290,7 @@ public class PaintPanel extends JPanel implements Actions {
             // redraw GeneralPath
             g2d.setColor(color);
             for (Object o : DrawStack.get()) {
-                g2d.draw((Shape) o);
+                g2d.draw((java.awt.Shape) o);
             }
         } catch (Exception ignored) {
 

@@ -9,15 +9,16 @@ import java.awt.*;
  * Loads the PaintPanel on the JFrame.
  * @see PaintPanel
  */
-public class Frame extends JFrame implements ImageLoader, Runnable {
+public class PaintFrame extends JFrame implements ImageLoader {
     private final int width, height;
     private final String title;
 
-    private static Frame frame;
+    private static PaintFrame paintFrame;
 
+    // this is for things like frame rate; mainly a debugging tool
     private static double dt;
 
-    private Frame() {
+    private PaintFrame() {
         this.width = 800;
         this.height = 600;
         this.title = "Sebedo Graphics Engine";
@@ -29,12 +30,12 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
         System.out.println("Welcome to Sebedo Graphics Engine.");
     }
 
-    public static Frame get() {
-        if (frame == null) {
-            frame = new Frame();
+    public static PaintFrame get() {
+        if (paintFrame == null) {
+            paintFrame = new PaintFrame();
         }
 
-        return frame;
+        return paintFrame;
     }
 
     public void init() {
@@ -49,16 +50,5 @@ public class Frame extends JFrame implements ImageLoader, Runnable {
         setIconImage(loadImage("src/main/resources/images/cookie.png"));
 
         PaintPanel.get().requestFocusInWindow();
-    }
-
-
-    /**
-     * Updates the PaintPanel repeatedly.
-     */
-    @Override
-    public synchronized void run() {
-        while (this.isEnabled()) {
-            PaintPanel.get().update();
-        }
     }
 }
