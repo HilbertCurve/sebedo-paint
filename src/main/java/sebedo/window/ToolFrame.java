@@ -9,9 +9,6 @@ public class ToolFrame extends JFrame implements Runnable {
 
     private static ToolFrame toolFrame;
 
-    // this is for things like frame rate; mainly a debugging tool
-    private static double dt;
-
     private ToolFrame() {
         this.width = 200;
         this.height = 600;
@@ -41,10 +38,10 @@ public class ToolFrame extends JFrame implements Runnable {
 
 
     /**
-     * Updates the ToolPanel repeatedly.
+     * Updates the ToolPanel repeatedly. Doesn't do much right now.
      */
     @Override
-    public synchronized void run() {
-
+    public void run() {
+        // does nothing right now.
     }
 }

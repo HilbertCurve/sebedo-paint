@@ -9,6 +9,10 @@ import java.util.*;
 /**
  * Loads all graphics and graphics-related objects, such as listeners.<br>
  * TODO: bind menu items to respective actions
+ * <br>
+ * TODO: make raster graphics editor
+ * <br>
+ * TODO: make file loading
  */
 public class PaintPanel extends JPanel implements Actions {
     private static PaintPanel paintPanel;
@@ -120,7 +124,7 @@ public class PaintPanel extends JPanel implements Actions {
                         }
                     }
                 }
-                System.out.println(pressedKeys.toString());
+                System.out.println(pressedKeys);
             }
 
             @Override

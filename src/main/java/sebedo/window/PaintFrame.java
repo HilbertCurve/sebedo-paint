@@ -15,9 +15,6 @@ public class PaintFrame extends JFrame implements ImageLoader {
 
     private static PaintFrame paintFrame;
 
-    // this is for things like frame rate; mainly a debugging tool
-    private static double dt;
-
     private PaintFrame() {
         this.width = 800;
         this.height = 600;
