@@ -18,6 +18,7 @@ public class PaintPanel extends JPanel implements Actions {
     private static PaintPanel paintPanel;
 
     public static final MenuBar menuBar = new MenuBar();
+
     private static final Menu fileMenu = new Menu("File");
     private static final MenuItem[] fileMenuItems = {
             new MenuItem("Save"),
@@ -26,7 +27,6 @@ public class PaintPanel extends JPanel implements Actions {
     };
 
     private static final Menu editMenu = new Menu("Edit");
-
     private static final MenuItem[] editMenuItems = {
             new MenuItem("Copy"),
             new MenuItem("Paste"),
@@ -59,6 +59,7 @@ public class PaintPanel extends JPanel implements Actions {
     private static Rectangle2D r = new Rectangle2D.Double();
     private static Color color;
     private static Color bgColor;
+    public static int strokeWeight = 1;
 
     public static boolean isPainting;
 
@@ -192,10 +193,11 @@ public class PaintPanel extends JPanel implements Actions {
         } else {
             gp = new Path2D.Double();
         }
+
+        repaint();
     }
 
     private void ellipseDraw() {
-
         if (getMousePosition() != null) {
             if (mouse0 == null) {
                 mouse0 = getMousePosition();
@@ -222,6 +224,8 @@ public class PaintPanel extends JPanel implements Actions {
             e = null;
             mouse0 = null;
         }
+
+        repaint();
     }
 
     private void rectangleDraw() {
@@ -251,6 +255,8 @@ public class PaintPanel extends JPanel implements Actions {
             r = null;
             mouse0 = null;
         }
+
+        repaint();
     }
 
     /**
@@ -262,8 +268,6 @@ public class PaintPanel extends JPanel implements Actions {
             case ELLIPSE: ellipseDraw(); break;
             case RECTANGLE: rectangleDraw(); break;
         }
-
-        repaint();
     }
 
     @Override
@@ -279,8 +283,9 @@ public class PaintPanel extends JPanel implements Actions {
     }
 
     /**
-     * Overloaded paint method from JComponent, paints specified components while {@code isPainting == true}.
+     * Overloaded paint method from JComponent, paints all components in the DrawStack singleton.
      * @see JComponent#paint
+     * @see DrawStack
      */
     @Override
     public void paint(Graphics g) {
@@ -293,6 +298,7 @@ public class PaintPanel extends JPanel implements Actions {
 
             // redraw GeneralPath
             g2d.setColor(color);
+            g2d.setStroke(new BasicStroke(strokeWeight));
             for (Object o : DrawStack.get()) {
                 g2d.draw((java.awt.Shape) o);
             }

@@ -5,6 +5,7 @@ import java.util.Stack;
 public class DrawStack extends Stack<Object> {
     private static DrawStack drawStack;
     private static final Stack<Object> undoStack = new Stack<>();
+
     private DrawStack() {
 
     }
