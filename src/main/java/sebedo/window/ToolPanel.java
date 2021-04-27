@@ -9,15 +9,17 @@ public class ToolPanel extends JPanel implements ChangeListener {
     private static ToolPanel toolPanel;
 
     private static final JSlider jSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 20, 1);
+    private static final JColorChooser jColorChooser = new JColorChooser();
 
     static {
-        jSlider.setBounds(0, 0, ToolPanel.get().getWidth(), ToolPanel.get().getHeight());
         jSlider.addChangeListener(ToolPanel.get());
     }
 
     private ToolPanel() {
         this.setBackground(Color.WHITE);
+        this.setLayout(new GridLayout(0, 1));
         this.add(jSlider);
+        this.add(jColorChooser);
     }
 
     public static ToolPanel get() {

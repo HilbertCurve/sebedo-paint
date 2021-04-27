@@ -29,7 +29,7 @@ public class Main implements ImageLoader, Runnable {
     public void run() {
         while (PaintPanel.get().isEnabled()) {
             // this is for things like frame rate; mainly a debugging tool
-            //double dt1 = System.nanoTime();
+            // double dt1 = System.nanoTime();
 
             PaintPanel.get().update();
 
@@ -43,8 +43,8 @@ public class Main implements ImageLoader, Runnable {
                 e.printStackTrace();
             }
 
-            //double dt2 = System.nanoTime();
-            //System.out.println(1 / ((dt2 - dt1) * 1E-9));
+            // double dt2 = System.nanoTime();
+            // System.out.println(1 / ((dt2 - dt1) * 1E-9));
         }
     }
 }

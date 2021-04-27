@@ -49,4 +49,6 @@ public abstract class KeyBindParser implements Actions {
     public static Collection<String> getKeyBind(long action) {
         return new HashSet<>(Arrays.asList(keyBinds.get(action)));
     }
+
+    //TODO: make key bind editor method
 }

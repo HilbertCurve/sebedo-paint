@@ -54,12 +54,13 @@ public class PaintPanel extends JPanel implements Actions {
 
     private static Point mouse0 = get().getMousePosition();
     private static Point mouse1 = get().getMousePosition();
-    private static Path2D.Double gp = new Path2D.Double();
+    private static Path2D.Double freeHandPath = new Path2D.Double();
     private static Ellipse2D e = new Ellipse2D.Double();
     private static Rectangle2D r = new Rectangle2D.Double();
+    private static Line2D l = new Line2D.Double();
     private static Color color;
     private static Color bgColor;
-    public static int strokeWeight = 1;
+    public static int strokeWeight = 5;
 
     public static boolean isPainting;
 
@@ -168,7 +169,7 @@ public class PaintPanel extends JPanel implements Actions {
     }
 
     private void freeHandDraw() {
-        Line2D l;
+        Line2D.Double l;
         mouse0 = getMousePosition();
         mouse1 = getMousePosition();
         boolean mouseInBounds = (mouse0 != null && mouse1 != null);
@@ -179,19 +180,19 @@ public class PaintPanel extends JPanel implements Actions {
             l = new Line2D.Double();
         }
 
-        if (gp == null) {
-            gp = new Path2D.Double();
+        if (freeHandPath == null) {
+            freeHandPath = new Path2D.Double();
         }
 
         if (isPainting) {
             if (mouseInBounds) {
-                gp.append(l, true);
+                freeHandPath.append(l, true);
             }
-            if (!DrawStack.get().contains(gp)) {
-                DrawStack.get().add(gp);
+            if (!DrawStack.get().contains(freeHandPath)) {
+                DrawStack.get().add(freeHandPath);
             }
         } else {
-            gp = new Path2D.Double();
+            freeHandPath = new Path2D.Double();
         }
 
         repaint();
@@ -259,6 +260,37 @@ public class PaintPanel extends JPanel implements Actions {
         repaint();
     }
 
+    private void lineDraw() {
+        if (mouse0 == null) {
+            mouse0 = getMousePosition();
+        }
+
+        if (getMousePosition() != null) {
+            mouse1 = getMousePosition();
+        }
+
+        if (l == null) {
+            l = new Line2D.Double();
+        }
+
+        if (isPainting) {
+            try {
+                l.setLine(mouse0, mouse1);
+            } catch (NullPointerException ignored) {
+
+            }
+
+            if (!DrawStack.get().contains(l)) {
+                DrawStack.get().add(l);
+            }
+        } else {
+            l = null;
+            mouse0 = null;
+        }
+
+        repaint();
+    }
+
     /**
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
@@ -267,6 +299,7 @@ public class PaintPanel extends JPanel implements Actions {
             case FREEHAND: freeHandDraw(); break;
             case ELLIPSE: ellipseDraw(); break;
             case RECTANGLE: rectangleDraw(); break;
+            case LINE: lineDraw(); break;
         }
     }
 
@@ -289,21 +322,17 @@ public class PaintPanel extends JPanel implements Actions {
      */
     @Override
     public void paint(Graphics g) {
-        try {
-            Graphics2D g2d = (Graphics2D) g;
+        Graphics2D g2d = (Graphics2D) g;
 
-            // redraw background (simulate refreshing the page)
-            g2d.setColor(bgColor);
-            g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
+        // redraw background (simulate refreshing the page)
+        g2d.setColor(bgColor);
+        g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
-            // redraw GeneralPath
-            g2d.setColor(color);
-            g2d.setStroke(new BasicStroke(strokeWeight));
-            for (Object o : DrawStack.get()) {
-                g2d.draw((java.awt.Shape) o);
-            }
-        } catch (Exception ignored) {
-
+        // redraw the drawStack
+        g2d.setColor(color);
+        g2d.setStroke(new BasicStroke(strokeWeight));
+        for (Object o : DrawStack.get()) {
+            g2d.draw((java.awt.Shape) o);
         }
     }
 }
