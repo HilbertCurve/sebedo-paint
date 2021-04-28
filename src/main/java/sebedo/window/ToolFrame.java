@@ -10,7 +10,7 @@ public class ToolFrame extends JFrame implements Runnable {
     private static ToolFrame toolFrame;
 
     private ToolFrame() {
-        this.width = 200;
+        this.width = 300;
         this.height = 600;
         this.title = "Sebedo Graphics Engine";
 
@@ -27,21 +27,21 @@ public class ToolFrame extends JFrame implements Runnable {
     }
 
     public void init() {
-        add(ToolPanel.get());
-        pack();
-
         setTitle(title);
         setSize(this.width, this.height);
+        setResizable(true);
         setBackground(Color.WHITE);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
+        add(ToolPanel.get());
+        pack();
+    }
 
     /**
      * Updates the ToolPanel repeatedly. Doesn't do much right now.
      */
     @Override
     public void run() {
-        // does nothing right now.
+
     }
 }

@@ -5,7 +5,7 @@ public enum Tools {
     ELLIPSE,
     RECTANGLE,
     LINE,
-    CURVE,
+    ARC,
     SHAPE,
     SELECT
 }

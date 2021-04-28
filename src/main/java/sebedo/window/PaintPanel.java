@@ -10,13 +10,18 @@ import java.util.*;
  * Loads all graphics and graphics-related objects, such as listeners.<br>
  * TODO: bind menu items to respective actions
  * <br>
- * TODO: make raster graphics editor
+ * FIXME: raster graphics editor
+ * <br>
+ * TODO: make vector graphics editor
  * <br>
  * TODO: make file loading
  */
 public class PaintPanel extends JPanel implements Actions {
     private static PaintPanel paintPanel;
 
+    /**
+     * Menu bar bound to the {@code PaintPanel}.
+     */
     public static final MenuBar menuBar = new MenuBar();
 
     private static final Menu fileMenu = new Menu("File");
@@ -54,20 +59,48 @@ public class PaintPanel extends JPanel implements Actions {
 
     private static Point mouse0 = get().getMousePosition();
     private static Point mouse1 = get().getMousePosition();
-    private static Path2D.Double freeHandPath = new Path2D.Double();
+
+    /**
+     * Static {@code Path2D.Double} used in {@code freeHandDraw}.
+     * @see PaintPanel#freeHandDraw()
+     */
+    private static Path2D freeHandPath = new Path2D.Double();
+
+    /**
+     * Static {@code Ellipse2D.Double} used in {@code ellipseDraw}.
+     * @see PaintPanel#ellipseDraw()
+     */
     private static Ellipse2D e = new Ellipse2D.Double();
+
+    /**
+     * Static {@code Rectangle2D.Double} used in {@code rectangleDraw}.
+     * @see PaintPanel#rectangleDraw()
+     */
     private static Rectangle2D r = new Rectangle2D.Double();
+
+    /**
+     * Static {@code Line2D.Double} used in {@code lineDraw}.
+     * @see PaintPanel#lineDraw()
+     */
     private static Line2D l = new Line2D.Double();
+
+    /**
+     * Static {@code Arc2D.Double} used in {@code arcDraw}.
+     * @see PaintPanel#arcDraw()
+     */
+    private static Arc2D a = new Arc2D.Double();
+
     private static Color color;
     private static Color bgColor;
-    public static int strokeWeight = 5;
+    public static int strokeWeight = 1;
 
     public static boolean isPainting;
 
     public static final Set<String> pressedKeys = new HashSet<>();
 
     /**
-     * Private constructor for class {@code PaintPanel}
+     * Private constructor for class {@code PaintPanel}.<br>
+     * Don't let anyone instantiate this class.
      * @see PaintPanel#get
      */
     private PaintPanel() {
@@ -146,8 +179,8 @@ public class PaintPanel extends JPanel implements Actions {
     }
 
     /**
-     * Gets singleton PaintPanel
-     * @return Singleton PaintPanel {@code pPanel}
+     * Returns singleton PaintPanel
+     * @return singleton PaintPanel {@code paintPanel}
      */
     public static PaintPanel get() {
         if (PaintPanel.paintPanel == null) {
@@ -164,6 +197,7 @@ public class PaintPanel extends JPanel implements Actions {
         } else {
             toolIndex = 0;
         }
+
         selectedTool = toolsArr[toolIndex];
         System.out.println(selectedTool.toString());
     }
@@ -291,6 +325,38 @@ public class PaintPanel extends JPanel implements Actions {
         repaint();
     }
 
+    // FIXME
+    private void arcDraw() {
+        if (mouse0 == null) {
+            mouse0 = getMousePosition();
+        }
+
+        if (getMousePosition() != null) {
+            mouse1 = getMousePosition();
+        }
+
+        if (a == null) {
+            a = new Arc2D.Double();
+        }
+
+        if (isPainting) {
+            try {
+                a.setArc(mouse0.getX(), mouse0.getY(), mouse1.getX(), mouse1.getY(), 180, 180, Arc2D.OPEN);
+            } catch (NullPointerException ignored) {
+
+            }
+
+            if (!DrawStack.get().contains(a)) {
+                DrawStack.get().add(a);
+            }
+        } else {
+            a = null;
+            mouse0 = null;
+        }
+
+        repaint();
+    }
+
     /**
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
@@ -300,6 +366,7 @@ public class PaintPanel extends JPanel implements Actions {
             case ELLIPSE: ellipseDraw(); break;
             case RECTANGLE: rectangleDraw(); break;
             case LINE: lineDraw(); break;
+            case ARC: arcDraw(); break;
         }
     }
 
