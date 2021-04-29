@@ -5,16 +5,56 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 
+/**
+ * JPanel responsible for various actions.
+ */
 public class ToolPanel extends JPanel implements ChangeListener {
     private static ToolPanel toolPanel;
 
-    private static final JSlider jSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 20, 1);
-    private static final JColorChooser jColorChooser = new JColorChooser();
+    // FiXmE pLeAsE
+    public class ToolPanelItem {
 
+    }
+
+    private static final JPanel sliderPanel = new JPanel();
+    private static final JLabel sliderLabel = new JLabel();
+    private static final JSlider strokeWeightSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 20, 1);
+
+    private static final JPanel colorChooserPanel = new JPanel();
+    private static final JColorChooser colorChooser = new JColorChooser();
+
+    private static final JPanel toolSelectorPanel = new JPanel();
+    private static final JComboBox toolSelector = new JComboBox();
+
+    /* Make sure to initialize layout after components. */
+    private static final GroupLayout layout = new GroupLayout(ToolPanel.get());
+
+    // TODO: finish static initializer (mainly, finish group layout)
     static {
-        jSlider.addChangeListener(ToolPanel.get());
+        strokeWeightSlider.addChangeListener(ToolPanel.get());
 
-        jColorChooser.setBounds(0, 200, 300, 200);
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.PAGE_AXIS));
+        sliderPanel.setPreferredSize(new Dimension(60, 5));
+        sliderPanel.add(strokeWeightSlider);
+        sliderPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+
+        colorChooser.setPreferredSize(new Dimension(100, 200));
+
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                .addComponent(sliderPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(colorChooser, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(sliderPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(colorChooser, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        ToolPanel.get().setLayout(layout);
     }
 
     private ToolPanel() {
@@ -22,9 +62,6 @@ public class ToolPanel extends JPanel implements ChangeListener {
 
         this.setPreferredSize(new Dimension(300, 600));
         this.setBackground(Color.WHITE);
-        this.setLayout(new GridLayout(0, 1));
-        this.add(jSlider);
-        this.add(jColorChooser);
     }
 
     public static ToolPanel get() {
@@ -37,8 +74,8 @@ public class ToolPanel extends JPanel implements ChangeListener {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        if (e.getSource() == jSlider && jSlider.getValueIsAdjusting()) {
-            PaintPanel.strokeWeight = jSlider.getValue();
+        if (e.getSource() == strokeWeightSlider && strokeWeightSlider.getValueIsAdjusting()) {
+            PaintPanel.strokeWeight = strokeWeightSlider.getValue();
         }
     }
 }
