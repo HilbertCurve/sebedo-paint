@@ -3,8 +3,6 @@ import sebedo.window.PaintFrame;
 import sebedo.window.PaintPanel;
 import sebedo.window.ToolFrame;
 
-import java.awt.*;
-
 /**
  * Loads the frame singleton made by the Frame class.
  * @see PaintFrame
@@ -25,7 +23,7 @@ public class Main implements ImageLoader, Runnable {
     }
 
     /**
-     * Updates the PaintPanel repeatedly.
+     * Updates PaintPanel repeatedly.
      */
     @Override
     public void run() {
@@ -38,7 +36,7 @@ public class Main implements ImageLoader, Runnable {
             /*
              * this halts processing for 15 milliseconds, allowing the CPU to do CPU stuff
              * for that amount of time (otherwise this program would use more memory than
-             * necessary).
+             * necessary and would cause runtime issues).
              */
             try {
                 Thread.sleep(15);

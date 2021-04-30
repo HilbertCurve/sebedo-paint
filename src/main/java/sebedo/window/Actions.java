@@ -21,5 +21,14 @@ public interface Actions {
             SWITCH_TOOL
     };
 
+    String[] actionNames = {
+            "Copy",
+            "Paste",
+            "Undo",
+            "Redo",
+            "Clear",
+            "Switch Tool"
+    };
+
     void doAction(long action);
 }
