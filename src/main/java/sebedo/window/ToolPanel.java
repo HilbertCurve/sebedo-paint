@@ -1,22 +1,31 @@
 package sebedo.window;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Objects;
 
 /**
  * JPanel responsible for various actions.
  */
-public class ToolPanel extends JPanel implements ChangeListener, Actions {
+public class ToolPanel extends JPanel implements ChangeListener, ActionListener {
     private static ToolPanel toolPanel;
 
     public static class ToolPanelItem extends JPanel {
-        public ToolPanelItem(int x, int y, JComponent... components) {
+
+        public ToolPanelItem(int x, int y, JLabel label, JComponent... components) {
             this.setLocation(new Point(x, y));
 
-            BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
-            this.setLayout(layout);
+            BoxLayout bl = new BoxLayout(this, BoxLayout.Y_AXIS);
+
+            this.setLayout(bl);
+            this.setBorder(BorderFactory.createStrokeBorder(new BasicStroke()));
+
+            this.add(label);
 
             if (components != null) {
                 int width = 0;
@@ -27,53 +36,61 @@ public class ToolPanel extends JPanel implements ChangeListener, Actions {
                     height += o.getHeight();
                 }
 
-                this.setSize(new Dimension(width, height));
+                this.setMaximumSize(new Dimension(width, height));
             } else {
                 this.setSize(new Dimension(50, 50));
             }
         }
     }
-
     private static final JLabel sliderLabel = new JLabel("Stroke Thickness:");
+
     private static final JSlider strokeWeightSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 21, 1);
-    private static final ToolPanelItem sliderPanel = new ToolPanelItem(100, 0, sliderLabel, strokeWeightSlider);
+    private static final JComboBox<String> toolSelector = new JComboBox<>(Tools.toolNames);
+
+    private static final ToolPanelItem sliderPanel = new ToolPanelItem(0, 0, sliderLabel, strokeWeightSlider);
 
     private static final ToolPanelItem colorChooserPanel = null; // FIXME
-
-    private static final JComboBox<JButton> toolSelector = new JComboBox<>();
-
+    private static final ToolPanelItem toolSelectorPanel = new ToolPanelItem(0, 50, new JLabel("Selected Tool:"), toolSelector);
     /* Make sure to initialize layout after components. */
-    private static final GroupLayout toolLayout = new GroupLayout(ToolPanel.get());
 
+    private static final GroupLayout toolLayout = new GroupLayout(ToolPanel.get());
     // TODO: finish static initializer (primarily, finish group layout)
+
     static {
+        sliderLabel.setPreferredSize(new Dimension(200, 10));
+
         strokeWeightSlider.addChangeListener(ToolPanel.get());
         strokeWeightSlider.setMinorTickSpacing(1);
         strokeWeightSlider.setMajorTickSpacing(10);
         strokeWeightSlider.setPaintTicks(true);
         strokeWeightSlider.setSnapToTicks(true);
+        strokeWeightSlider.setPreferredSize(new Dimension(sliderPanel.getWidth(), 30));
+
+        toolSelector.setMaximumSize(new Dimension(100, 20));
+        toolSelector.setEnabled(true);
+        toolSelector.addActionListener(ToolPanel.get());
 
         sliderPanel.setBackground(Color.WHITE);
+        toolSelectorPanel.setBackground(Color.WHITE);
 
         toolLayout.setAutoCreateGaps(true);
         toolLayout.setAutoCreateContainerGaps(true);
         toolLayout.setHorizontalGroup(
             toolLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                .addComponent(sliderPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(sliderPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(toolSelectorPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         toolLayout.setVerticalGroup(
             toolLayout.createSequentialGroup()
-                .addGroup(toolLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(sliderPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                )
+                .addComponent(sliderPanel)
+                .addComponent(toolSelectorPanel)
         );
 
         ToolPanel.get().setLayout(toolLayout);
     }
-
     private ToolPanel() {
-        super(new BorderLayout());
+        super(toolLayout);
 
         this.setPreferredSize(new Dimension(300, 600));
         this.setBackground(Color.WHITE);
@@ -95,7 +112,9 @@ public class ToolPanel extends JPanel implements ChangeListener, Actions {
     }
 
     @Override
-    public void doAction(long action) {
-
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == toolSelector) {
+            PaintPanel.get().setSelectedTool(Objects.requireNonNull(Tools.valueOf((String) toolSelector.getSelectedItem())));
+        }
     }
 }

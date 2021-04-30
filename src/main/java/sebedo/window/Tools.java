@@ -7,5 +7,16 @@ public enum Tools {
     LINE,
     ARC,
     SHAPE,
-    SELECT
+    SELECT;
+
+    private static String[] toolNames() {
+        String[] names = new String[Tools.values().length];
+
+        for (Tools t : Tools.values()) {
+            names[t.ordinal()] = t.toString();
+        }
+        return names;
+    }
+
+    public static String[] toolNames = toolNames();
 }

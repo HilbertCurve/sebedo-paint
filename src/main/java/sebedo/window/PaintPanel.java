@@ -202,6 +202,11 @@ public class PaintPanel extends JPanel implements Actions {
         System.out.println(selectedTool.toString());
     }
 
+    public void setSelectedTool(Tools t) {
+        selectedTool = t;
+        toolIndex = t.ordinal();
+    }
+
     private void freeHandDraw() {
         Line2D.Double l;
         mouse0 = getMousePosition();
