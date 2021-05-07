@@ -1,9 +1,14 @@
 package sebedo.window;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -18,6 +23,8 @@ import java.util.*;
  */
 public class PaintPanel extends JPanel implements Actions {
     private static PaintPanel paintPanel;
+    private static BufferedImage bImage;
+    private static Graphics2D g2d;
 
     /**
      * Menu bar bound to the {@code PaintPanel}.
@@ -106,6 +113,7 @@ public class PaintPanel extends JPanel implements Actions {
     private PaintPanel() {
         // parse keybindings
         KeyBindParser.parseKeyBinds();
+        bImage = new BufferedImage(PaintFrame.width, PaintFrame.height, BufferedImage.TYPE_INT_ARGB);
 
         // add mouse and key listeners
         this.addMouseListener(new MouseListener() {
@@ -362,6 +370,19 @@ public class PaintPanel extends JPanel implements Actions {
         repaint();
     }
 
+    private void export(String dir, String type) {
+        Graphics g = bImage.getGraphics();
+        this.printAll(g);
+
+        File file = new File(dir + "." + type);
+
+        try {
+            ImageIO.write(bImage, type, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
@@ -384,6 +405,7 @@ public class PaintPanel extends JPanel implements Actions {
             case (int) REDO: DrawStack.get().redo(); break;
             case (int) CLEAR: DrawStack.get().clear(); break;
             case (int) SWITCH_TOOL: switchTool(); break;
+            case (int) SAVE: export("src/main/resources/foo", "png");
         }
     }
 
@@ -394,7 +416,7 @@ public class PaintPanel extends JPanel implements Actions {
      */
     @Override
     public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+        g2d = (Graphics2D) g;
 
         // redraw background (simulate refreshing the page)
         g2d.setColor(bgColor);

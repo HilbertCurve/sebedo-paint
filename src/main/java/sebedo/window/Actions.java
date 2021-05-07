@@ -5,12 +5,14 @@ package sebedo.window;
  *
  */
 public interface Actions {
+
     long COPY = 0;
     long PASTE = 1;
     long UNDO = 2;
     long REDO = 3;
     long CLEAR = 4;
     long SWITCH_TOOL = 5;
+    long SAVE = 6;
 
     long[] actions = {
             COPY,
@@ -18,7 +20,8 @@ public interface Actions {
             UNDO,
             REDO,
             CLEAR,
-            SWITCH_TOOL
+            SWITCH_TOOL,
+            SAVE
     };
 
     String[] actionNames = {
@@ -27,7 +30,8 @@ public interface Actions {
             "Undo",
             "Redo",
             "Clear",
-            "Switch Tool"
+            "Switch Tool",
+            "Save"
     };
 
     void doAction(long action);

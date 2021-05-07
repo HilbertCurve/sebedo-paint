@@ -10,14 +10,14 @@ import java.awt.*;
  * @see PaintPanel
  */
 public class PaintFrame extends JFrame implements ImageLoader {
-    private final int width, height;
+    public static int width, height;
     private final String title;
 
     private static PaintFrame paintFrame;
 
     private PaintFrame() {
-        this.width = 800;
-        this.height = 600;
+        width = 800;
+        height = 600;
         this.title = "Sebedo Graphics Engine";
         this.setMenuBar(PaintPanel.menuBar);
 
