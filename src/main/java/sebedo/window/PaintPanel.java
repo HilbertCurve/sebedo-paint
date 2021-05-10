@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -370,17 +369,33 @@ public class PaintPanel extends JPanel implements Actions {
         repaint();
     }
 
-    private void export(String dir, String type) {
-        Graphics g = bImage.getGraphics();
-        this.printAll(g);
+    private void export() {
+        final JFileChooser chooser = new JFileChooser();
+        int val;
 
-        File file = new File(dir + "." + type);
+        // otherwise I get sticky keys
+        pressedKeys.clear();
+        val = chooser.showSaveDialog(PaintPanel.this);
+        System.out.println("Dialog finished.");
 
-        try {
-            ImageIO.write(bImage, type, file);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (val == JFileChooser.APPROVE_OPTION) {
+            Graphics g = bImage.getGraphics();
+            this.printAll(g);
+
+            File file = chooser.getSelectedFile();
+            System.out.println("PaintPanel loaded.");
+
+            try {
+                ImageIO.write(bImage, "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.print("Image written: ");
+
+            System.out.print(file.getName() + "\n");
         }
+
+
     }
 
     /**
@@ -405,7 +420,7 @@ public class PaintPanel extends JPanel implements Actions {
             case (int) REDO: DrawStack.get().redo(); break;
             case (int) CLEAR: DrawStack.get().clear(); break;
             case (int) SWITCH_TOOL: switchTool(); break;
-            case (int) SAVE: export("src/main/resources/foo", "png");
+            case (int) SAVE: export();
         }
     }
 
