@@ -70,7 +70,7 @@ public class PaintPanel extends JPanel implements Actions {
      * Static {@code Path2D.Double} used in {@code freeHandDraw}.
      * @see PaintPanel#freeHandDraw()
      */
-    private static Path2D freeHandPath = new Path2D.Double();
+    private static SebedoPath freeHandPath = new SebedoPath();
 
     /**
      * Static {@code Ellipse2D.Double} used in {@code ellipseDraw}.
@@ -166,6 +166,7 @@ public class PaintPanel extends JPanel implements Actions {
                         }
                     }
                 }
+
                 System.out.println(pressedKeys);
             }
 
@@ -227,7 +228,7 @@ public class PaintPanel extends JPanel implements Actions {
         }
 
         if (freeHandPath == null) {
-            freeHandPath = new Path2D.Double();
+            freeHandPath = new SebedoPath();
         }
 
         if (isPainting) {
@@ -238,7 +239,7 @@ public class PaintPanel extends JPanel implements Actions {
                 DrawStack.get().add(freeHandPath);
             }
         } else {
-            freeHandPath = new Path2D.Double();
+            freeHandPath = new SebedoPath();
         }
 
         repaint();
@@ -411,6 +412,19 @@ public class PaintPanel extends JPanel implements Actions {
         }
     }
 
+    public void rasterDraw(Graphics g) {
+        super.paint(g);
+        g2d = (Graphics2D) g;
+
+        // redraw the drawStack
+        g2d.setColor(color);
+
+        for (Object o : DrawStack.get()) {
+            g2d.setStroke(((SebedoShape) o).getStroke((SebedoShape) o));
+            g2d.draw((java.awt.Shape) o);
+        }
+    }
+
     @Override
     public void doAction(long action) {
         switch ((int) action) {
@@ -431,17 +445,6 @@ public class PaintPanel extends JPanel implements Actions {
      */
     @Override
     public void paint(Graphics g) {
-        g2d = (Graphics2D) g;
-
-        // redraw background (simulate refreshing the page)
-        g2d.setColor(bgColor);
-        g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
-
-        // redraw the drawStack
-        g2d.setColor(color);
-        g2d.setStroke(new BasicStroke(strokeWeight));
-        for (Object o : DrawStack.get()) {
-            g2d.draw((java.awt.Shape) o);
-        }
+        rasterDraw(g);
     }
 }

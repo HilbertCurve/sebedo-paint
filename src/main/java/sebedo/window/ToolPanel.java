@@ -50,11 +50,11 @@ public class ToolPanel extends JPanel implements ChangeListener, ActionListener 
 
     private static final ToolPanelItem colorChooserPanel = null; // FIXME
     private static final ToolPanelItem toolSelectorPanel = new ToolPanelItem(0, 50, new JLabel("Selected Tool:"), toolSelector);
+
     /* Make sure to initialize layout after components. */
-
     private static final GroupLayout toolLayout = new GroupLayout(ToolPanel.get());
-    // TODO: finish static initializer (primarily, finish group layout)
 
+    // TODO: finish static initializer (primarily, finish group layout)
     static {
         sliderLabel.setPreferredSize(new Dimension(200, 10));
 
