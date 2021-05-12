@@ -1,5 +1,7 @@
 package sebedo.window;
 
+import sebedo.shape.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -67,34 +69,34 @@ public class PaintPanel extends JPanel implements Actions {
     private static Point mouse1 = get().getMousePosition();
 
     /**
-     * Static {@code Path2D.Double} used in {@code freeHandDraw}.
+     * Static {@code SebedoPath} used in {@code freeHandDraw}.
      * @see PaintPanel#freeHandDraw()
      */
     private static SebedoPath freeHandPath = new SebedoPath();
 
     /**
-     * Static {@code Ellipse2D.Double} used in {@code ellipseDraw}.
+     * Static {@code SebedoEllipse} used in {@code ellipseDraw}.
      * @see PaintPanel#ellipseDraw()
      */
-    private static Ellipse2D e = new Ellipse2D.Double();
+    private static SebedoEllipse ellipse = new SebedoEllipse();
 
     /**
-     * Static {@code Rectangle2D.Double} used in {@code rectangleDraw}.
+     * Static {@code SebedoRectangle} used in {@code rectangleDraw}.
      * @see PaintPanel#rectangleDraw()
      */
-    private static Rectangle2D r = new Rectangle2D.Double();
+    private static SebedoRectangle rectangle = new SebedoRectangle();
 
     /**
      * Static {@code Line2D.Double} used in {@code lineDraw}.
      * @see PaintPanel#lineDraw()
      */
-    private static Line2D l = new Line2D.Double();
+    private static SebedoLine line = new SebedoLine();
 
     /**
      * Static {@code Arc2D.Double} used in {@code arcDraw}.
      * @see PaintPanel#arcDraw()
      */
-    private static Arc2D a = new Arc2D.Double();
+    private static Arc2D arc = new Arc2D.Double();
 
     private static Color color;
     private static Color bgColor;
@@ -254,22 +256,22 @@ public class PaintPanel extends JPanel implements Actions {
             mouse1 = getMousePosition();
         }
 
-        if (e == null) {
-            e = new Ellipse2D.Double();
+        if (ellipse == null) {
+            ellipse = new SebedoEllipse();
         }
 
         if (isPainting) {
             try {
-                e.setFrameFromDiagonal(mouse0, mouse1);
+                ellipse.setFrameFromDiagonal(mouse0, mouse1);
             } catch (NullPointerException ignored) {
 
             }
 
-            if (!DrawStack.get().contains(e)) {
-                DrawStack.get().add(e);
+            if (!DrawStack.get().contains(ellipse)) {
+                DrawStack.get().add(ellipse);
             }
         } else {
-            e = null;
+            ellipse = null;
             mouse0 = null;
         }
 
@@ -285,22 +287,22 @@ public class PaintPanel extends JPanel implements Actions {
             mouse1 = getMousePosition();
         }
 
-        if (r == null) {
-            r = new Rectangle2D.Double();
+        if (rectangle == null) {
+            rectangle = new SebedoRectangle();
         }
 
         if (isPainting) {
             try {
-                r.setFrameFromDiagonal(mouse0, mouse1);
+                rectangle.setFrameFromDiagonal(mouse0, mouse1);
             } catch (NullPointerException ignored) {
 
             }
 
-            if (!DrawStack.get().contains(r)) {
-                DrawStack.get().add(r);
+            if (!DrawStack.get().contains(rectangle)) {
+                DrawStack.get().add(rectangle);
             }
         } else {
-            r = null;
+            rectangle = null;
             mouse0 = null;
         }
 
@@ -316,22 +318,22 @@ public class PaintPanel extends JPanel implements Actions {
             mouse1 = getMousePosition();
         }
 
-        if (l == null) {
-            l = new Line2D.Double();
+        if (line == null) {
+            line = new SebedoLine();
         }
 
         if (isPainting) {
             try {
-                l.setLine(mouse0, mouse1);
+                line.setLine(mouse0, mouse1);
             } catch (NullPointerException ignored) {
 
             }
 
-            if (!DrawStack.get().contains(l)) {
-                DrawStack.get().add(l);
+            if (!DrawStack.get().contains(line)) {
+                DrawStack.get().add(line);
             }
         } else {
-            l = null;
+            line = null;
             mouse0 = null;
         }
 
@@ -348,22 +350,22 @@ public class PaintPanel extends JPanel implements Actions {
             mouse1 = getMousePosition();
         }
 
-        if (a == null) {
-            a = new Arc2D.Double();
+        if (arc == null) {
+            arc = new Arc2D.Double();
         }
 
         if (isPainting) {
             try {
-                a.setArc(mouse0.getX(), mouse0.getY(), mouse1.getX(), mouse1.getY(), 180, 180, Arc2D.OPEN);
+                arc.setArc(mouse0.getX(), mouse0.getY(), mouse1.getX(), mouse1.getY(), 180, 180, Arc2D.OPEN);
             } catch (NullPointerException ignored) {
 
             }
 
-            if (!DrawStack.get().contains(a)) {
-                DrawStack.get().add(a);
+            if (!DrawStack.get().contains(arc)) {
+                DrawStack.get().add(arc);
             }
         } else {
-            a = null;
+            arc = null;
             mouse0 = null;
         }
 
@@ -420,7 +422,7 @@ public class PaintPanel extends JPanel implements Actions {
         g2d.setColor(color);
 
         for (Object o : DrawStack.get()) {
-            g2d.setStroke(((SebedoShape) o).getStroke((SebedoShape) o));
+            g2d.setStroke(((SebedoGraphic) o).getStroke((SebedoGraphic) o));
             g2d.draw((java.awt.Shape) o);
         }
     }
