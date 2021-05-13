@@ -13,6 +13,7 @@ public interface Actions {
     long CLEAR = 4;
     long SWITCH_TOOL = 5;
     long SAVE = 6;
+    long OPEN = 7;
 
     long[] actions = {
             COPY,
@@ -21,7 +22,8 @@ public interface Actions {
             REDO,
             CLEAR,
             SWITCH_TOOL,
-            SAVE
+            SAVE,
+            OPEN
     };
 
     String[] actionNames = {
@@ -31,7 +33,8 @@ public interface Actions {
             "Redo",
             "Clear",
             "Switch Tool",
-            "Save"
+            "Save",
+            "Open"
     };
 
     void doAction(long action);

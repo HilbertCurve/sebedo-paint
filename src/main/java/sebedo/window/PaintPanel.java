@@ -98,8 +98,9 @@ public class PaintPanel extends JPanel implements Actions {
      */
     private static Arc2D arc = new Arc2D.Double();
 
-    private static Color color;
-    private static Color bgColor;
+    public static Color color;
+    public static Color fillColor;
+    public static Color bgColor;
     public static int strokeWeight = 1;
 
     public static boolean isPainting;
@@ -185,7 +186,9 @@ public class PaintPanel extends JPanel implements Actions {
 
         // set default colors
         color = Color.BLACK;
-        bgColor = Color.WHITE;
+        fillColor = Color.WHITE;
+        bgColor = new Color(255, 255, 255, 0);
+        this.setBackground(bgColor);
     }
 
     /**
@@ -372,6 +375,41 @@ public class PaintPanel extends JPanel implements Actions {
         repaint();
     }
 
+    private void open(File file) {
+        pressedKeys.clear();
+
+        Object[] options = {
+                "Yes",
+                "No"
+        };
+
+        int n = JOptionPane.showOptionDialog(
+                this,
+                "All unsaved progress will be lost. \n"
+                + "Continue?",
+                "Warning",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1]
+        );
+
+        switch (n) {
+            case JOptionPane.YES_OPTION:
+                System.out.println("Yes"); break;
+            case JOptionPane.NO_OPTION:
+                System.out.println("No"); break;
+        }
+
+        DrawStack.get().clear();
+        update();
+    }
+
+    private void open(String filename) {
+        open(new File(filename));
+    }
+
     private void export() {
         final JFileChooser chooser = new JFileChooser();
         int val;
@@ -411,6 +449,7 @@ public class PaintPanel extends JPanel implements Actions {
             case RECTANGLE: rectangleDraw(); break;
             case LINE: lineDraw(); break;
             case ARC: arcDraw(); break;
+            default: repaint(); break;
         }
     }
 
@@ -418,12 +457,31 @@ public class PaintPanel extends JPanel implements Actions {
         super.paint(g);
         g2d = (Graphics2D) g;
 
-        // redraw the drawStack
-        g2d.setColor(color);
+        // refresh the screen (to remove smearing effect)
+        try {
+            if (!(DrawStack.get().firstElement() instanceof SebedoRectangle)) {
+                DrawStack.get().insertElementAt(new SebedoRectangle(0, 0,
+                                Toolkit.getDefaultToolkit().getScreenSize().width,
+                                Toolkit.getDefaultToolkit().getScreenSize().height),
+                        0);
+            }
+        } catch (NoSuchElementException e) {
+            DrawStack.get().insertElementAt(new SebedoRectangle(0, 0,
+                    Toolkit.getDefaultToolkit().getScreenSize().width,
+                    Toolkit.getDefaultToolkit().getScreenSize().height),
+                    0);
+        } // FIXME: this is inefficient, and also doesn't work
 
+        // redraw the drawStack
         for (Object o : DrawStack.get()) {
-            g2d.setStroke(((SebedoGraphic) o).getStroke((SebedoGraphic) o));
+            g2d.setColor(((SebedoGraphic) o).getColor());
+            g2d.setStroke(((SebedoGraphic) o).getStroke());
             g2d.draw((java.awt.Shape) o);
+
+            if (!(o instanceof SebedoPath || o instanceof SebedoLine)) {
+                g2d.setColor(((SebedoGraphic) o).getFill());
+                g2d.fill((java.awt.Shape) o);
+            }
         }
     }
 
@@ -436,7 +494,8 @@ public class PaintPanel extends JPanel implements Actions {
             case (int) REDO: DrawStack.get().redo(); break;
             case (int) CLEAR: DrawStack.get().clear(); break;
             case (int) SWITCH_TOOL: switchTool(); break;
-            case (int) SAVE: export();
+            case (int) SAVE: export(); break;
+            case (int) OPEN: open((File) null); break;
         }
     }
 

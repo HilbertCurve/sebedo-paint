@@ -40,7 +40,7 @@ public class PaintFrame extends JFrame implements ImageLoader {
         pack();
 
         setTitle(title);
-        setSize(this.width, this.height);
+        setSize(width, height);
         setLocationRelativeTo(null);
         setBackground(Color.WHITE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

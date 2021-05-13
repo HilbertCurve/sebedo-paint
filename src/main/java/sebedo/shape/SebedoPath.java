@@ -11,7 +11,17 @@ public class SebedoPath extends Path2D.Double implements SebedoGraphic {
     }
 
     @Override
-    public BasicStroke getStroke(SebedoGraphic s) {
+    public BasicStroke getStroke() {
         return this.shape.stroke;
+    }
+
+    @Override
+    public Color getColor() {
+        return this.shape.color;
+    }
+
+    @Override
+    public Color getFill() {
+        return this.shape.fill;
     }
 }
