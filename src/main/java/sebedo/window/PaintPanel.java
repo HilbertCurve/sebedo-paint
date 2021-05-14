@@ -68,6 +68,8 @@ public class PaintPanel extends JPanel implements Actions {
     private static Point mouse0 = get().getMousePosition();
     private static Point mouse1 = get().getMousePosition();
 
+    private static Panel shapePanel = new Panel(); // TODO: use this to fix refresh issue
+
     /**
      * Static {@code SebedoPath} used in {@code freeHandDraw}.
      * @see PaintPanel#freeHandDraw()
@@ -186,7 +188,7 @@ public class PaintPanel extends JPanel implements Actions {
 
         // set default colors
         color = Color.BLACK;
-        fillColor = Color.WHITE;
+        fillColor = new Color(255, 255, 255, 0);
         bgColor = new Color(255, 255, 255, 0);
         this.setBackground(bgColor);
     }
@@ -443,6 +445,8 @@ public class PaintPanel extends JPanel implements Actions {
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
     public void update() {
+        // update sebedoShape repeatedly
+
         switch (selectedTool) {
             case FREEHAND: freeHandDraw(); break;
             case ELLIPSE: ellipseDraw(); break;
@@ -454,32 +458,22 @@ public class PaintPanel extends JPanel implements Actions {
     }
 
     public void rasterDraw(Graphics g) {
-        super.paint(g);
         g2d = (Graphics2D) g;
 
         // refresh the screen (to remove smearing effect)
-        try {
-            if (!(DrawStack.get().firstElement() instanceof SebedoRectangle)) {
-                DrawStack.get().insertElementAt(new SebedoRectangle(0, 0,
-                                Toolkit.getDefaultToolkit().getScreenSize().width,
-                                Toolkit.getDefaultToolkit().getScreenSize().height),
-                        0);
-            }
-        } catch (NoSuchElementException e) {
-            DrawStack.get().insertElementAt(new SebedoRectangle(0, 0,
-                    Toolkit.getDefaultToolkit().getScreenSize().width,
-                    Toolkit.getDefaultToolkit().getScreenSize().height),
-                    0);
-        } // FIXME: this is inefficient, and also doesn't work
+        g2d.setColor(Color.WHITE);
+        g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
         // redraw the drawStack
         for (Object o : DrawStack.get()) {
-            g2d.setColor(((SebedoGraphic) o).getColor());
-            g2d.setStroke(((SebedoGraphic) o).getStroke());
+            SebedoGraphic s = (SebedoGraphic) o;
+
+            g2d.setColor(s.getColor());
+            g2d.setStroke(s.getStroke());
             g2d.draw((java.awt.Shape) o);
 
             if (!(o instanceof SebedoPath || o instanceof SebedoLine)) {
-                g2d.setColor(((SebedoGraphic) o).getFill());
+                g2d.setColor(s.getFill());
                 g2d.fill((java.awt.Shape) o);
             }
         }
@@ -506,6 +500,7 @@ public class PaintPanel extends JPanel implements Actions {
      */
     @Override
     public void paint(Graphics g) {
+        super.paint(g);
         rasterDraw(g);
     }
 }
