@@ -1,5 +1,6 @@
 package sebedo.window;
 
+import sebedo.image.ImageLoader;
 import sebedo.shape.*;
 
 import javax.imageio.ImageIO;
@@ -22,7 +23,7 @@ import java.util.*;
  * <br>
  * TODO: make file loading
  */
-public class PaintPanel extends JPanel implements Actions {
+public class PaintPanel extends JPanel implements Actions, ImageLoader {
     private static PaintPanel paintPanel;
     private static BufferedImage bImage;
     private static Graphics2D g2d;
@@ -243,7 +244,7 @@ public class PaintPanel extends JPanel implements Actions {
                 freeHandPath.append(l, true);
             }
             if (!DrawStack.get().contains(freeHandPath)) {
-                DrawStack.get().add(freeHandPath);
+                DrawStack.get().push(freeHandPath);
             }
         } else {
             freeHandPath = new SebedoPath();
@@ -377,8 +378,8 @@ public class PaintPanel extends JPanel implements Actions {
         repaint();
     }
 
-    private void open(File file) {
-        pressedKeys.clear();
+    private void open() {
+        pressedKeys.clear(); // otherwise I get sticky keys
 
         Object[] options = {
                 "Yes",
@@ -389,7 +390,7 @@ public class PaintPanel extends JPanel implements Actions {
                 this,
                 "All unsaved progress will be lost. \n"
                 + "Continue?",
-                "Warning",
+                "Open File",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE,
                 null,
@@ -399,17 +400,33 @@ public class PaintPanel extends JPanel implements Actions {
 
         switch (n) {
             case JOptionPane.YES_OPTION:
-                System.out.println("Yes"); break;
+                final JFileChooser chooser = new JFileChooser();
+                int val = chooser.showOpenDialog(PaintPanel.this);
+                System.out.println("Dialog finished.");
+
+                if (val == JFileChooser.APPROVE_OPTION) {
+                    File file = chooser.getSelectedFile();
+
+                    try {
+                        DrawStack.get().clear();
+                        bImage = ImageIO.read(file);
+                        System.out.println("Image opened: " + file.getName());
+                        DrawStack.get().push(bImage);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        System.out.println("An error occurred.");
+                    }
+
+                } break;
             case JOptionPane.NO_OPTION:
                 System.out.println("No"); break;
         }
 
-        DrawStack.get().clear();
-        update();
+        repaint();
     }
 
     private void open(String filename) {
-        open(new File(filename));
+        open();
     }
 
     private void export() {
@@ -430,10 +447,11 @@ public class PaintPanel extends JPanel implements Actions {
 
             try {
                 ImageIO.write(bImage, "png", file);
+                System.out.print("Image written: ");
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("Could not write file.");
             }
-            System.out.print("Image written: ");
 
             System.out.print(file.getName() + "\n");
         }
@@ -445,8 +463,6 @@ public class PaintPanel extends JPanel implements Actions {
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
     public void update() {
-        // update sebedoShape repeatedly
-
         switch (selectedTool) {
             case FREEHAND: freeHandDraw(); break;
             case ELLIPSE: ellipseDraw(); break;
@@ -466,13 +482,27 @@ public class PaintPanel extends JPanel implements Actions {
 
         // redraw the drawStack
         for (Object o : DrawStack.get()) {
-            SebedoGraphic s = (SebedoGraphic) o;
+            SebedoGraphic s;
+            BufferedImage i;
+            if (o instanceof SebedoGraphic) {
+                s = (SebedoGraphic) o;
+                i = null;
+            } else {
+                s = null;
+                i = (BufferedImage) o;
+            }
 
-            g2d.setColor(s.getColor());
-            g2d.setStroke(s.getStroke());
-            g2d.draw((java.awt.Shape) o);
+            if (!(o instanceof BufferedImage)) {
+                if (s != null) {
+                    g2d.setColor(s.getColor());
+                    g2d.setStroke(s.getStroke());
+                    g2d.draw((java.awt.Shape) o);
+                }
+            } else {
+                g2d.drawImage(i, null, 0, 0);
+            }
 
-            if (!(o instanceof SebedoPath || o instanceof SebedoLine)) {
+            if (!(o instanceof SebedoPath || o instanceof SebedoLine || o instanceof BufferedImage)) {
                 g2d.setColor(s.getFill());
                 g2d.fill((java.awt.Shape) o);
             }
@@ -489,7 +519,7 @@ public class PaintPanel extends JPanel implements Actions {
             case (int) CLEAR: DrawStack.get().clear(); break;
             case (int) SWITCH_TOOL: switchTool(); break;
             case (int) SAVE: export(); break;
-            case (int) OPEN: open((File) null); break;
+            case (int) OPEN: open(); break;
         }
     }
 

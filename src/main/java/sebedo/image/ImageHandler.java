@@ -3,7 +3,6 @@ package sebedo.image;
 import javax.swing.*;
 import java.awt.*;
 
-
 public class ImageHandler {
 
     public Dimension d = new Dimension();
