@@ -15,15 +15,11 @@ import java.util.*;
 
 /**
  * Loads all graphics and graphics-related objects, such as listeners.<br>
- * TODO: bind menu items to respective actions
- * <br>
- * FIXME: raster graphics editor
- * <br>
  * TODO: make vector graphics editor
  * <br>
- * TODO: make file loading
+ * TODO: add anti-aliasing
  */
-public class PaintPanel extends JPanel implements Actions, ImageLoader {
+public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
     private static PaintPanel paintPanel;
     private static BufferedImage bImage;
     private static Graphics2D g2d;
@@ -31,32 +27,64 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
     /**
      * Menu bar bound to the {@code PaintPanel}.
      */
-    public static final MenuBar menuBar = new MenuBar();
+    public static final JMenuBar menuBar = new JMenuBar();
 
-    private static final Menu fileMenu = new Menu("File");
-    private static final MenuItem[] fileMenuItems = {
-            new MenuItem("Save"),
-            new MenuItem("Save as..."),
-            new MenuItem("New File")
+    private static final JMenu fileMenu = new JMenu("File");
+    private static final JMenuItem saveMI = new JMenuItem("Save");
+    private static final JMenuItem saveAsMI = new JMenuItem("Save as");
+    private static final JMenuItem newFileMI = new JMenuItem("New File");
+
+    private static final JMenuItem[] fileMenuItems = {
+            saveMI,
+            saveAsMI,
+            newFileMI
     };
 
-    private static final Menu editMenu = new Menu("Edit");
-    private static final MenuItem[] editMenuItems = {
-            new MenuItem("Copy"),
-            new MenuItem("Paste"),
-            new MenuItem("Clear"),
-            new MenuItem("Undo"),
-            new MenuItem("Redo"),
-            new MenuItem("Select Tool...")
+    private static final JMenu editMenu = new JMenu("Edit");
+    private static final JMenuItem copyMI = new JMenuItem("Copy");
+    private static final JMenuItem pasteMI = new JMenuItem("Paste");
+    private static final JMenuItem undoMI = new JMenuItem("Undo");
+    private static final JMenuItem redoMI = new JMenuItem("Redo");
+    private static final JMenuItem clearMI = new JMenuItem("Clear");
+    private static final JMenu setToolMI = new JMenu("Set Tool");
+    private static final JMenuItem freeHandToolMI = new JMenuItem("Freehand");
+    private static final JMenuItem ellipseToolMI = new JMenuItem("Ellipse");
+    private static final JMenuItem rectangleToolMI = new JMenuItem("Rectangle");
+    private static final JMenuItem lineToolMI = new JMenuItem("Line");
+    private static final JMenuItem arcToolMI = new JMenuItem("Arc");
+    private static final JMenuItem shapeToolMI = new JMenuItem("Shape");
+    private static final JMenuItem selectToolMI = new JMenuItem("Select");
+
+    private static final JMenuItem[] editMenuItems = {
+            copyMI,
+            pasteMI,
+            undoMI,
+            redoMI,
+            clearMI,
+            setToolMI
+    };
+
+    private static final JMenuItem[] setToolMenuItems = {
+            freeHandToolMI,
+            ellipseToolMI,
+            rectangleToolMI,
+            lineToolMI,
+            arcToolMI,
+            shapeToolMI,
+            selectToolMI
     };
 
     static {
-        for (MenuItem m : fileMenuItems) {
+        for (JMenuItem m : fileMenuItems) {
             fileMenu.add(m);
         }
 
-        for (MenuItem m : editMenuItems) {
+        for (JMenuItem m : editMenuItems) {
             editMenu.add(m);
+        }
+
+        for (JMenuItem m : setToolMenuItems) {
+            setToolMI.add(m);
         }
 
         menuBar.add(fileMenu);
@@ -187,6 +215,24 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
             }
         });
 
+        // bind menuItems to their respective actions
+        saveMI.addActionListener(this);
+        saveAsMI.addActionListener(this);
+        newFileMI.addActionListener(this);
+
+        copyMI.addActionListener(this);
+        pasteMI.addActionListener(this);
+        undoMI.addActionListener(this);
+        redoMI.addActionListener(this);
+        clearMI.addActionListener(this);
+        freeHandToolMI.addActionListener(this);
+        ellipseToolMI.addActionListener(this);
+        rectangleToolMI.addActionListener(this);
+        lineToolMI.addActionListener(this);
+        arcToolMI.addActionListener(this);
+        shapeToolMI.addActionListener(this);
+        selectToolMI.addActionListener(this);
+
         // set default colors
         color = Color.BLACK;
         fillColor = new Color(255, 255, 255, 0);
@@ -221,6 +267,7 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
     public void setSelectedTool(Tools t) {
         selectedTool = t;
         toolIndex = t.ordinal();
+        update();
     }
 
     private void freeHandDraw() {
@@ -388,7 +435,7 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
 
         int n = JOptionPane.showOptionDialog(
                 this,
-                "All unsaved progress will be lost. \n"
+                "All unsaved progress will be lost.\n"
                 + "Continue?",
                 "Open File",
                 JOptionPane.YES_NO_OPTION,
@@ -406,11 +453,12 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
 
                 if (val == JFileChooser.APPROVE_OPTION) {
                     File file = chooser.getSelectedFile();
+                    System.out.println("Opening file: " + file.getName());
 
                     try {
                         DrawStack.get().clear();
                         bImage = ImageIO.read(file);
-                        System.out.println("Image opened: " + file.getName());
+                        System.out.println("File opened: " + file.getName());
                         DrawStack.get().push(bImage);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -419,7 +467,7 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
 
                 } break;
             case JOptionPane.NO_OPTION:
-                System.out.println("No"); break;
+                System.out.println("Open Cancelled."); break;
         }
 
         repaint();
@@ -470,6 +518,10 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
             case LINE: lineDraw(); break;
             case ARC: arcDraw(); break;
             default: repaint(); break;
+        }
+
+        if (ToolPanel.toolSelector.getSelectedItem() != PaintPanel.selectedTool.toString()) {
+            ToolPanel.toolSelector.setSelectedItem(PaintPanel.selectedTool.toString());
         }
     }
 
@@ -532,5 +584,63 @@ public class PaintPanel extends JPanel implements Actions, ImageLoader {
     public void paint(Graphics g) {
         super.paint(g);
         rasterDraw(g);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == saveMI) {
+            export();
+        } else if (e.getSource() == saveAsMI) {
+            // TODO: upgrade export
+            // TODO: expand saveAsMI to include more MenuItems
+        } else if (e.getSource() == newFileMI) {
+            Object[] options = {
+                    "Yes",
+                    "No"
+            };
+
+            int n = JOptionPane.showOptionDialog(
+                    this,
+                    "All unsaved progress will be lost.\n"
+                            + "Continue?",
+                    "New File",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    options,
+                    options[1]
+            );
+
+            if (n == JOptionPane.YES_OPTION) {
+                DrawStack.get().clear();
+                color = Color.BLACK;
+                bgColor = Color.WHITE;
+                fillColor = new Color(0, 0, 0, 0);
+            }
+        } else if (e.getSource() == copyMI) {
+            // need to make copy
+        } else if (e.getSource() == pasteMI) {
+            // need to make paste
+        } else if (e.getSource() == undoMI) {
+            DrawStack.get().undo();
+        } else if (e.getSource() == redoMI) {
+            DrawStack.get().redo();
+        } else if (e.getSource() == clearMI) {
+            DrawStack.get().clear();
+        } else if (e.getSource() == freeHandToolMI) {
+            setSelectedTool(Tools.FREEHAND);
+        } else if (e.getSource() == ellipseToolMI) {
+            setSelectedTool(Tools.ELLIPSE);
+        } else if (e.getSource() == rectangleToolMI) {
+            setSelectedTool(Tools.RECTANGLE);
+        } else if (e.getSource() == lineToolMI) {
+            setSelectedTool(Tools.LINE);
+        } else if (e.getSource() == arcToolMI) {
+            setSelectedTool(Tools.ARC);
+        } else if (e.getSource() == shapeToolMI) {
+            setSelectedTool(Tools.SHAPE);
+        } else if (e.getSource() == selectToolMI) {
+            setSelectedTool(Tools.SELECT);
+        }
     }
 }

@@ -43,8 +43,8 @@ public class ToolPanel extends JPanel implements ChangeListener, ActionListener 
     }
     private static final JLabel sliderLabel = new JLabel("Stroke Thickness:");
 
-    private static final JSlider strokeWeightSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 21, 1);
-    private static final JComboBox<String> toolSelector = new JComboBox<>(Tools.toolNames);
+    public static final JSlider strokeWeightSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 21, 1);
+    public static final JComboBox<String> toolSelector = new JComboBox<>(Tools.toolNames);
 
     private static final ToolPanelItem sliderPanel = new ToolPanelItem(0, 0, sliderLabel, strokeWeightSlider);
 

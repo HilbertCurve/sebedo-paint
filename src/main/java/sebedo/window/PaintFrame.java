@@ -19,7 +19,7 @@ public class PaintFrame extends JFrame implements ImageLoader {
         width = 800;
         height = 600;
         this.title = "Sebedo Graphics Engine";
-        this.setMenuBar(PaintPanel.menuBar);
+        this.setJMenuBar(PaintPanel.menuBar);
 
         this.init();
         this.setVisible(true);
