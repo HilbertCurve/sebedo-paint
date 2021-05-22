@@ -473,10 +473,6 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         repaint();
     }
 
-    private void open(String filename) {
-        open();
-    }
-
     private void export() {
         final JFileChooser chooser = new JFileChooser();
         int val;
@@ -520,6 +516,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             default: repaint(); break;
         }
 
+        // update various components to match accepted state
         if (ToolPanel.toolSelector.getSelectedItem() != PaintPanel.selectedTool.toString()) {
             ToolPanel.toolSelector.setSelectedItem(PaintPanel.selectedTool.toString());
         }
@@ -592,7 +589,6 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             export();
         } else if (e.getSource() == saveAsMI) {
             // TODO: upgrade export
-            // TODO: expand saveAsMI to include more MenuItems
         } else if (e.getSource() == newFileMI) {
             Object[] options = {
                     "Yes",
