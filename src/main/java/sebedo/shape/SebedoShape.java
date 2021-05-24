@@ -10,6 +10,7 @@ public class SebedoShape {
     Color fill;
 
     public SebedoShape() {
+        // set shape properties to what is currently in PaintPanel.
         stroke = new BasicStroke(PaintPanel.strokeWeight, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
         color = PaintPanel.color;
         fill = PaintPanel.fillColor;

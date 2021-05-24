@@ -1,5 +1,8 @@
 package sebedo.window;
 
+import sebedo.shape.SebedoRectangle;
+
+import java.awt.*;
 import java.util.Stack;
 
 public final class DrawStack extends Stack<Object> {
@@ -39,7 +42,6 @@ public final class DrawStack extends Stack<Object> {
     @Override
     public void clear() {
         super.clear();
-        PaintPanel.isPainting = false;
         PaintPanel.get().update();
     }
 }

@@ -11,18 +11,17 @@ import java.awt.*;
  */
 public class PaintFrame extends JFrame implements ImageLoader {
     public static int width, height;
-    private final String title;
+    private static final String title = "Sebedo Paint";
 
     private static PaintFrame paintFrame;
 
     private PaintFrame() {
         width = 800;
         height = 600;
-        this.title = "Sebedo Graphics Engine";
-        this.setJMenuBar(PaintPanel.menuBar);
+        setJMenuBar(PaintPanel.menuBar);
 
-        this.init();
-        this.setVisible(true);
+        init();
+        setVisible(true);
 
         System.out.println("Welcome to Sebedo Graphics Engine.");
     }
