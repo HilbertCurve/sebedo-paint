@@ -16,6 +16,11 @@ public class SebedoEllipse extends Ellipse2D.Double implements SebedoGraphic {
     }
 
     @Override
+    public void setStroke(BasicStroke stroke) {
+        this.shape.stroke = stroke;
+    }
+
+    @Override
     public Color getColor() {
         return this.shape.color;
     }
@@ -31,7 +36,7 @@ public class SebedoEllipse extends Ellipse2D.Double implements SebedoGraphic {
     }
 
     @Override
-    public void setFill(Color color) {
-        this.shape.color = color;
+    public void setFill(Color fill) {
+        this.shape.color = fill;
     }
 }

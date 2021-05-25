@@ -14,9 +14,11 @@ public class Main implements ImageLoader, Runnable {
 
     public static Main main = new Main();
 
+    public static final Object lock = new Object();
+
     public static void main(String[] args) {
-        paintFrame = PaintFrame.get();
         toolFrame = ToolFrame.get();
+        paintFrame = PaintFrame.get();
         toolFrame.setLocation(paintFrame.getX() + paintFrame.getWidth() + 10, paintFrame.getY());
 
         main.run();
@@ -36,10 +38,10 @@ public class Main implements ImageLoader, Runnable {
             /*
              * this halts processing for 15 milliseconds, allowing the CPU to do CPU stuff
              * for that amount of time (otherwise this program would use more memory than
-             * necessary and would cause runtime issues).
+             * necessary and could cause runtime issues).
              */
             try {
-                Thread.sleep(15);
+                Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

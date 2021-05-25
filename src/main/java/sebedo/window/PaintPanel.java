@@ -11,13 +11,14 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Native;
 import java.util.*;
 
 /**
  * Loads all graphics and graphics-related objects, such as listeners.<br>
  * TODO: make vector graphics editor
  * <br>
- * TODO: add anti-aliasing
+ * FIXME: toggleable antialiasing
  */
 public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
     private static PaintPanel paintPanel;
@@ -25,10 +26,13 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     private static Graphics2D g2d;
 
     /**
-     * Menu bar bound to the {@code PaintPanel}.
+     * Menu bar bound to {@code PaintPanel}.
      */
     public static final JMenuBar menuBar = new JMenuBar();
 
+    /**
+     * Menu of file-related menu items.
+     */
     private static final JMenu fileMenu = new JMenu("File");
     private static final JMenuItem saveMI = new JMenuItem("Save");
     private static final JMenuItem saveAsMI = new JMenuItem("Save as");
@@ -40,6 +44,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             newFileMI
     };
 
+    /**
+     * Menu of editing-related menu items.
+     */
     private static final JMenu editMenu = new JMenu("Edit");
     private static final JMenuItem copyMI = new JMenuItem("Copy");
     private static final JMenuItem pasteMI = new JMenuItem("Paste");
@@ -91,9 +98,15 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         menuBar.add(editMenu);
     }
 
+    /**
+     * Current selected tool.
+     * @see PaintPanel#setSelectedTool
+     * @see PaintPanel#switchTool
+     */
     private static Tools selectedTool = Tools.FREEHAND;
     private static int toolIndex = 0;
 
+    /* Used for mouse-related shenanigans. */
     private static Point mouse0 = get().getMousePosition();
     private static Point mouse1 = get().getMousePosition();
 
@@ -129,13 +142,28 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
      */
     private static Arc2D arc = new Arc2D.Double();
 
+    /**
+     * Current border/main color.
+     */
     public static Color color;
+    /**
+     * Current fill color.
+     */
     public static Color fillColor;
+    /**
+     * Current background color.
+     */
     public static Color bgColor;
+    /**
+     * Current stroke weight.
+     */
     public static int strokeWeight = 1;
 
     public static boolean isPainting;
 
+    /**
+     * Set of currently pressed keys.
+     */
     public static final Set<String> pressedKeys = new HashSet<>();
 
     /**
@@ -252,6 +280,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         return PaintPanel.paintPanel;
     }
 
+    /**
+     * Cycles through {@code selectedTool}.
+     */
     private void switchTool() {
         Tools[] toolsArr = Tools.values();
         if (toolIndex + 1 < toolsArr.length) {
@@ -264,6 +295,10 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         System.out.println(selectedTool.toString());
     }
 
+    /**
+     * Sets {@code selectedTool} to value from enum {@code Tools}.
+     * @see Tools
+     */
     public void setSelectedTool(Tools t) {
         selectedTool = t;
         toolIndex = t.ordinal();
@@ -491,13 +526,12 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
             try {
                 ImageIO.write(bImage, "png", file);
-                System.out.print("Image written: ");
+                System.out.print("Image written: " + file.getName() + ".\n");
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Could not write file.");
             }
 
-            System.out.print(file.getName() + "\n");
         }
 
 
@@ -524,6 +558,12 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
     public void rasterDraw(Graphics g) {
         g2d = (Graphics2D) g;
+
+        // enable antialiasing
+        g2d.setRenderingHints(new RenderingHints(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON)
+        );
 
         // refresh the screen (to remove smearing effect)
         g2d.setColor(Color.WHITE);
@@ -614,9 +654,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
                 fillColor = new Color(0, 0, 0, 0);
             }
         } else if (e.getSource() == copyMI) {
-            // need to make copy
+            // copy
         } else if (e.getSource() == pasteMI) {
-            // need to make paste
+            // paste
         } else if (e.getSource() == undoMI) {
             DrawStack.get().undo();
         } else if (e.getSource() == redoMI) {
