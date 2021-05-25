@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Native;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -19,8 +20,14 @@ import java.util.*;
  * TODO: make vector graphics editor
  * <br>
  * FIXME: toggleable antialiasing
+ * <br>
+ * TODO: add bit-art editor
  */
 public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
+    static final class Grid extends JPanel {
+        // FIXME
+    }
+
     private static PaintPanel paintPanel;
     private static BufferedImage bImage;
     private static Graphics2D g2d;
@@ -243,8 +250,14 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             }
         });
 
-        // bind menuItems to their respective actions
-        saveMI.addActionListener(this);
+        // FIXME: bind menuItems to their respective actions
+        for (Object o : PaintPanel.class.getDeclaredFields()) {
+            if (o instanceof JMenuItem) {
+                ((JMenuItem) o).addActionListener(this);
+            }
+        }
+
+        /*saveMI.addActionListener(this);
         saveAsMI.addActionListener(this);
         newFileMI.addActionListener(this);
 
@@ -259,7 +272,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         lineToolMI.addActionListener(this);
         arcToolMI.addActionListener(this);
         shapeToolMI.addActionListener(this);
-        selectToolMI.addActionListener(this);
+        selectToolMI.addActionListener(this);*/
 
         // set default colors
         color = Color.BLACK;
