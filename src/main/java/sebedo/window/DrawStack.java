@@ -1,8 +1,5 @@
 package sebedo.window;
 
-import sebedo.shape.SebedoRectangle;
-
-import java.awt.*;
 import java.util.Stack;
 
 public final class DrawStack extends Stack<Object> {

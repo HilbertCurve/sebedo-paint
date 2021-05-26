@@ -11,21 +11,26 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Native;
 import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * Loads all graphics and graphics-related objects, such as listeners.<br>
- * TODO: make vector graphics editor
+ * Loads all graphics and graphics-related objects, such as listeners.
  * <br>
  * FIXME: toggleable antialiasing
  * <br>
  * TODO: add bit-art editor
  */
 public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
-    static final class Grid extends JPanel {
-        // FIXME
+    static final class Grid extends SebedoLine {
+        SebedoLine[] grid;
+        int pixelSize = 15;
+
+        {
+            for (int i = 0; i < pixelSize; i++) {
+
+            }
+        }
     }
 
     private static PaintPanel paintPanel;
@@ -250,29 +255,17 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             }
         });
 
-        // FIXME: bind menuItems to their respective actions
-        for (Object o : PaintPanel.class.getDeclaredFields()) {
-            if (o instanceof JMenuItem) {
-                ((JMenuItem) o).addActionListener(this);
+        // bind menuItems to their respective actions
+        for (Field f : PaintPanel.class.getDeclaredFields()) {
+            if (f.getGenericType().getTypeName().equals("javax.swing.JMenuItem")) {
+                try {
+                    JMenuItem mi = (JMenuItem) f.get(JMenuItem.class);
+                    mi.addActionListener(this);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
-        /*saveMI.addActionListener(this);
-        saveAsMI.addActionListener(this);
-        newFileMI.addActionListener(this);
-
-        copyMI.addActionListener(this);
-        pasteMI.addActionListener(this);
-        undoMI.addActionListener(this);
-        redoMI.addActionListener(this);
-        clearMI.addActionListener(this);
-        freeHandToolMI.addActionListener(this);
-        ellipseToolMI.addActionListener(this);
-        rectangleToolMI.addActionListener(this);
-        lineToolMI.addActionListener(this);
-        arcToolMI.addActionListener(this);
-        shapeToolMI.addActionListener(this);
-        selectToolMI.addActionListener(this);*/
 
         // set default colors
         color = Color.BLACK;
@@ -609,6 +602,11 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
                 g2d.fill((java.awt.Shape) o);
             }
         }
+    }
+
+    // TODO: finish vectorDraw
+    public void vectorDraw(Graphics g) {
+        g2d = (Graphics2D) g;
     }
 
     @Override
