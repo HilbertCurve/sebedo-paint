@@ -17,25 +17,46 @@ import java.util.*;
 /**
  * Loads all graphics and graphics-related objects, such as listeners.
  * <br>
- * FIXME: toggleable antialiasing
- * <br>
  * TODO: add bit-art editor
+ * <br>
+ * TODO: class is too big, must disperse
  */
 public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
-    static final class Grid extends SebedoLine {
-        SebedoLine[] grid;
-        int pixelSize = 15;
+    static final class Grid {
+        ArrayList<SebedoLine> grid = new ArrayList<>();
+        int pixelSize;
 
-        {
-            for (int i = 0; i < pixelSize; i++) {
+        public Grid(int pixelSize) {
+            this.pixelSize = pixelSize;
+            this.initGrid(pixelSize);
+        }
 
+        public void initGrid(int pixelSize) {
+            PaintPanel.color = Color.WHITE;
+            PaintPanel.strokeWeight = 5;
+            for (int i = 0; i < PaintFrame.height; i += pixelSize) {
+                grid.add(new SebedoLine(0, i, PaintFrame.width, i));
             }
+            for (int i = 0; i < PaintFrame.width; i += pixelSize) {
+                grid.add(new SebedoLine(i, 0, i, PaintFrame.height));
+            }
+            System.out.println(grid.size());
+        }
+
+        public ArrayList<SebedoLine> getGridLines() {
+            return grid;
         }
     }
 
+    /* Important static fields */
     private static PaintPanel paintPanel;
     private static BufferedImage bImage;
     private static Graphics2D g2d;
+    private static final Grid grid = new Grid(12);
+    private static final RenderingHints r = new RenderingHints(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON
+    );
 
     /**
      * Menu bar bound to {@code PaintPanel}.
@@ -122,7 +143,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     private static Point mouse0 = get().getMousePosition();
     private static Point mouse1 = get().getMousePosition();
 
-    private static Panel shapePanel = new Panel(); // TODO: use this to fix refresh issue
+    // private static Panel shapePanel = new Panel(); TODO: use this to fix refresh issue
 
     /**
      * Static {@code SebedoPath} used in {@code freeHandDraw}.
@@ -172,6 +193,8 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     public static int strokeWeight = 1;
 
     public static boolean isPainting;
+    public static boolean isRasterDraw = true;
+    public static boolean isBitArtDraw;
 
     /**
      * Set of currently pressed keys.
@@ -267,6 +290,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             }
         }
 
+        // set booleans
+        isBitArtDraw = true;
+
         // set default colors
         color = Color.WHITE;
         fillColor = new Color(0, 0, 0, 0);
@@ -329,7 +355,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
         if (isPainting) {
             if (mouseInBounds) {
-                freeHandPath.append(l, true);
+                ((Path2D.Double) freeHandPath.getAwtInstance()).append(l, true);
             }
             if (!DrawStack.get().contains(freeHandPath)) {
                 DrawStack.get().push(freeHandPath);
@@ -356,7 +382,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
         if (isPainting) {
             try {
-                ellipse.setFrameFromDiagonal(mouse0, mouse1);
+                ((Ellipse2D.Double) ellipse.getAwtInstance()).setFrameFromDiagonal(mouse0, mouse1);
             } catch (NullPointerException ignored) {
 
             }
@@ -387,7 +413,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
         if (isPainting) {
             try {
-                rectangle.setFrameFromDiagonal(mouse0, mouse1);
+                ((Rectangle2D.Double) rectangle.getAwtInstance()).setFrameFromDiagonal(mouse0, mouse1);
             } catch (NullPointerException ignored) {
 
             }
@@ -418,7 +444,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
         if (isPainting) {
             try {
-                line.setLine(mouse0, mouse1);
+                ((Line2D.Double) line.getAwtInstance()).setLine(mouse0, mouse1);
             } catch (NullPointerException ignored) {
 
             }
@@ -569,42 +595,47 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         g2d = (Graphics2D) g;
 
         // enable antialiasing
-        g2d.setRenderingHints(new RenderingHints(
-                RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON)
-        );
-
-        // refresh the screen (to remove smearing effect)
+        if (g2d.getRenderingHints() != r) {
+            g2d.setRenderingHints(r);
+        }
         g2d.setColor(bgColor);
         g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
+        // refresh the screen (to remove smearing effect)
+        if (isBitArtDraw) {
+            g2d.setColor(Color.GRAY);
+
+
+            for (SebedoLine sebedoLine : grid.getGridLines()) {
+                g2d.draw(sebedoLine.getAwtInstance());
+            }
+
+        }
+
         // redraw the drawStack
         for (Object o : DrawStack.get()) {
-            SebedoGraphic s;
-            BufferedImage i;
-            if (o instanceof SebedoGraphic) {
-                s = (SebedoGraphic) o;
-                i = null;
+            SebedoShape s = null;
+            BufferedImage i = null;
+            if (o instanceof SebedoShape) {
+                s = (SebedoShape) o;
             } else {
-                s = null;
                 i = (BufferedImage) o;
             }
 
             if (!(o instanceof BufferedImage)) {
-                if (s != null) {
-                    g2d.setColor(s.getColor());
-                    g2d.setStroke(s.getStroke());
-                    g2d.draw((java.awt.Shape) o);
+                if (!(o instanceof SebedoPath || o instanceof SebedoLine)) {
+                    g2d.setColor(s.getFill());
+                    g2d.fill(((SebedoShape) o).getAwtInstance());
                 }
+
+                g2d.setColor(s.getColor());
+                g2d.setStroke(s.getStroke());
+                g2d.draw(((SebedoShape) o).getAwtInstance());
             } else {
                 g2d.drawImage(i, null, 0, 0);
             }
-
-            if (!(o instanceof SebedoPath || o instanceof SebedoLine || o instanceof BufferedImage)) {
-                g2d.setColor(s.getFill());
-                g2d.fill((java.awt.Shape) o);
-            }
         }
+
     }
 
     // TODO: finish vectorDraw
@@ -634,63 +665,71 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        rasterDraw(g);
+        if (isRasterDraw) {
+            rasterDraw(g);
+        } else {
+            vectorDraw(g);
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == saveMI) {
-            export();
-        } else if (e.getSource() == saveAsMI) {
-            // TODO: upgrade export
-        } else if (e.getSource() == newFileMI) {
-            Object[] options = {
-                    "Yes",
-                    "No"
-            };
+        /* If menu item do menu item things */
+        if (e.getSource() instanceof JMenuItem) {
+            if (e.getSource() == saveMI) {
+                export();
+            } else /*if (e.getSource() == saveAsMI) {
+                TODO: upgrade export
+            } else*/ if (e.getSource() == newFileMI) {
+                Object[] options = {
+                        "Yes",
+                        "No"
+                };
 
-            int n = JOptionPane.showOptionDialog(
-                    this,
-                    "All unsaved progress will be lost.\n"
-                            + "Continue?",
-                    "New File",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE,
-                    null,
-                    options,
-                    options[1]
-            );
+                int n = JOptionPane.showOptionDialog(
+                        this,
+                        "All unsaved progress will be lost.\n"
+                                + "Continue?",
+                        "New File",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[1]
+                );
 
-            if (n == JOptionPane.YES_OPTION) {
+                if (n == JOptionPane.YES_OPTION) {
+                    DrawStack.get().clear();
+                    color = Color.WHITE;
+                    bgColor = Color.BLACK;
+                    fillColor = new Color(0, 0, 0, 0);
+                }
+            } else /*if (e.getSource() == copyMI) {
+                // copy
+            } else if (e.getSource() == pasteMI) {
+                // paste
+            } else*/ if (e.getSource() == undoMI) {
+                DrawStack.get().undo();
+            } else if (e.getSource() == redoMI) {
+                DrawStack.get().redo();
+            } else if (e.getSource() == clearMI) {
                 DrawStack.get().clear();
-                color = Color.WHITE;
-                bgColor = Color.BLACK;
-                fillColor = new Color(0, 0, 0, 0);
+            } else if (e.getSource() == freeHandToolMI) {
+                setSelectedTool(Tools.FREEHAND);
+            } else if (e.getSource() == ellipseToolMI) {
+                setSelectedTool(Tools.ELLIPSE);
+            } else if (e.getSource() == rectangleToolMI) {
+                setSelectedTool(Tools.RECTANGLE);
+            } else if (e.getSource() == lineToolMI) {
+                setSelectedTool(Tools.LINE);
+            } else if (e.getSource() == arcToolMI) {
+                setSelectedTool(Tools.ARC);
+            } else if (e.getSource() == shapeToolMI) {
+                setSelectedTool(Tools.SHAPE);
+            } else if (e.getSource() == selectToolMI) {
+                setSelectedTool(Tools.SELECT);
             }
-        } else if (e.getSource() == copyMI) {
-            // copy
-        } else if (e.getSource() == pasteMI) {
-            // paste
-        } else if (e.getSource() == undoMI) {
-            DrawStack.get().undo();
-        } else if (e.getSource() == redoMI) {
-            DrawStack.get().redo();
-        } else if (e.getSource() == clearMI) {
-            DrawStack.get().clear();
-        } else if (e.getSource() == freeHandToolMI) {
-            setSelectedTool(Tools.FREEHAND);
-        } else if (e.getSource() == ellipseToolMI) {
-            setSelectedTool(Tools.ELLIPSE);
-        } else if (e.getSource() == rectangleToolMI) {
-            setSelectedTool(Tools.RECTANGLE);
-        } else if (e.getSource() == lineToolMI) {
-            setSelectedTool(Tools.LINE);
-        } else if (e.getSource() == arcToolMI) {
-            setSelectedTool(Tools.ARC);
-        } else if (e.getSource() == shapeToolMI) {
-            setSelectedTool(Tools.SHAPE);
-        } else if (e.getSource() == selectToolMI) {
-            setSelectedTool(Tools.SELECT);
         }
+        /* The following will be for other performed actions... */
     }
 }

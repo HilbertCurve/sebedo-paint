@@ -3,6 +3,8 @@ import sebedo.window.PaintFrame;
 import sebedo.window.PaintPanel;
 import sebedo.window.ToolFrame;
 
+import javax.swing.*;
+
 /**
  * Loads the frame singleton made by the Frame class.
  * @see PaintFrame
@@ -12,11 +14,28 @@ public class Main implements ImageLoader, Runnable {
     public static PaintFrame paintFrame;
     public static ToolFrame toolFrame;
 
+    static {
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        }
+        catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
     public static Main main = new Main();
 
-    public static final Object lock = new Object();
+    static {
+        try {
+            UIManager.setLookAndFeel("com.bulenkov.darcula.DarculaLaf");
+        }
+        catch (Throwable anything) {
+            anything.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
+
         toolFrame = ToolFrame.get();
         paintFrame = PaintFrame.get();
         toolFrame.setLocation(paintFrame.getX() + paintFrame.getWidth() + 10, paintFrame.getY());
@@ -36,12 +55,12 @@ public class Main implements ImageLoader, Runnable {
             PaintPanel.get().update();
 
             /*
-             * this halts processing for 15 milliseconds, allowing the CPU to do CPU stuff
+             * this halts processing for 5 milliseconds, allowing the CPU to do CPU stuff
              * for that amount of time (otherwise this program would use more memory than
              * necessary and could cause runtime issues).
              */
             try {
-                Thread.sleep(5);
+                Thread.sleep(3);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

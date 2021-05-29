@@ -1,42 +1,18 @@
 package sebedo.shape;
 
-import java.awt.*;
 import java.awt.geom.Line2D;
 
-public class SebedoLine extends Line2D.Double implements SebedoGraphic {
-    SebedoShape shape = new SebedoShape();
-
+public class SebedoLine extends SebedoShape implements SebedoGraphic {
     public SebedoLine() {
-        new Line2D.Double();
+        createGraphic();
+    }
+
+    public SebedoLine(int x1, int y1, int x2, int y2) {
+        this.awtInstance = new Line2D.Double(x1, y1, x2, y2);
     }
 
     @Override
-    public BasicStroke getStroke() {
-        return this.shape.stroke;
-    }
-
-    @Override
-    public void setStroke(BasicStroke stroke) {
-        this.shape.stroke = stroke;
-    }
-
-    @Override
-    public Color getColor() {
-        return this.shape.color;
-    }
-
-    @Override
-    public void setColor(Color color) {
-        this.shape.color = color;
-    }
-
-    @Override
-    public Color getFill() {
-        return this.shape.fill;
-    }
-
-    @Override
-    public void setFill(Color color) {
-        this.shape.color = color;
+    public void createGraphic() {
+        this.awtInstance = new Line2D.Double();
     }
 }

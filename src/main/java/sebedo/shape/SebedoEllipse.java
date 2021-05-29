@@ -1,42 +1,14 @@
 package sebedo.shape;
 
-import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-public class SebedoEllipse extends Ellipse2D.Double implements SebedoGraphic {
-    public SebedoShape shape = new SebedoShape();
-
+public class SebedoEllipse extends SebedoShape implements SebedoGraphic {
     public SebedoEllipse() {
-        new Double();
+        createGraphic();
     }
 
     @Override
-    public BasicStroke getStroke() {
-        return this.shape.stroke;
-    }
-
-    @Override
-    public void setStroke(BasicStroke stroke) {
-        this.shape.stroke = stroke;
-    }
-
-    @Override
-    public Color getColor() {
-        return this.shape.color;
-    }
-
-    @Override
-    public void setColor(Color color) {
-        this.shape.color = color;
-    }
-
-    @Override
-    public Color getFill() {
-        return this.shape.fill;
-    }
-
-    @Override
-    public void setFill(Color fill) {
-        this.shape.color = fill;
+    public void createGraphic() {
+        awtInstance = new Ellipse2D.Double();
     }
 }

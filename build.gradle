@@ -11,7 +11,7 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    compile files('./libs/json-simple-1.1.jar')
+    compile files('./libs/json-simple-1.1.jar', './libs/darcula.jar')
 }
 
 test {
