@@ -268,9 +268,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         }
 
         // set default colors
-        color = Color.BLACK;
-        fillColor = new Color(255, 255, 255, 0);
-        bgColor = new Color(255, 255, 255, 0);
+        color = Color.WHITE;
+        fillColor = new Color(0, 0, 0, 0);
+        bgColor = Color.BLACK;
         this.setBackground(bgColor);
     }
 
@@ -560,6 +560,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         if (ToolPanel.toolSelector.getSelectedItem() != PaintPanel.selectedTool.toString()) {
             ToolPanel.toolSelector.setSelectedItem(PaintPanel.selectedTool.toString());
         }
+        if (PaintFrame.get().getBackground() != bgColor) {
+            PaintFrame.get().setBackground(bgColor);
+        }
     }
 
     public void rasterDraw(Graphics g) {
@@ -572,7 +575,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         );
 
         // refresh the screen (to remove smearing effect)
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(bgColor);
         g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
         // redraw the drawStack
@@ -660,8 +663,8 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
 
             if (n == JOptionPane.YES_OPTION) {
                 DrawStack.get().clear();
-                color = Color.BLACK;
-                bgColor = Color.WHITE;
+                color = Color.WHITE;
+                bgColor = Color.BLACK;
                 fillColor = new Color(0, 0, 0, 0);
             }
         } else if (e.getSource() == copyMI) {

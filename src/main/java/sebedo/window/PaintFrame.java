@@ -41,7 +41,6 @@ public class PaintFrame extends JFrame implements ImageLoader {
         setTitle(title);
         setSize(width, height);
         setLocationRelativeTo(null);
-        setBackground(Color.WHITE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImage(loadImage("src/main/resources/images/cookie.png"));
 
