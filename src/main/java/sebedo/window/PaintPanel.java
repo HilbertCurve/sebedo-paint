@@ -11,7 +11,6 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -22,32 +21,6 @@ import java.util.*;
  * TODO: class is too big, must disperse
  */
 public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
-    static final class Grid {
-        ArrayList<SebedoLine> grid = new ArrayList<>();
-        int pixelSize;
-
-        public Grid(int pixelSize) {
-            this.pixelSize = pixelSize;
-            this.initGrid(pixelSize);
-        }
-
-        public void initGrid(int pixelSize) {
-            PaintPanel.color = Color.WHITE;
-            PaintPanel.strokeWeight = 5;
-            for (int i = 0; i < PaintFrame.height; i += pixelSize) {
-                grid.add(new SebedoLine(0, i, PaintFrame.width, i));
-            }
-            for (int i = 0; i < PaintFrame.width; i += pixelSize) {
-                grid.add(new SebedoLine(i, 0, i, PaintFrame.height));
-            }
-            System.out.println(grid.size());
-        }
-
-        public ArrayList<SebedoLine> getGridLines() {
-            return grid;
-        }
-    }
-
     /* Important static fields */
     private static PaintPanel paintPanel;
     private static BufferedImage bImage;
@@ -279,7 +252,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         });
 
         // bind menuItems to their respective actions
-        for (Field f : PaintPanel.class.getDeclaredFields()) {
+        /*for (Field f : PaintPanel.class.getDeclaredFields()) {
             if (f.getGenericType().getTypeName().equals("javax.swing.JMenuItem")) {
                 try {
                     JMenuItem mi = (JMenuItem) f.get(JMenuItem.class);
@@ -288,7 +261,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
                     e.printStackTrace();
                 }
             }
-        }
+        }*/
 
         // set booleans
         isBitArtDraw = true;
@@ -599,18 +572,17 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             g2d.setRenderingHints(r);
         }
         g2d.setColor(bgColor);
-        g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
+        // g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
         // refresh the screen (to remove smearing effect)
-        if (isBitArtDraw) {
-            g2d.setColor(Color.GRAY);
+       if (isBitArtDraw) {
+           for (SebedoRectangle sr : grid.getGrid()) {
+               g2d.setColor(sr.getFill());
+               g2d.fill(sr.getAwtInstance());
+           }
 
 
-            for (SebedoLine sebedoLine : grid.getGridLines()) {
-                g2d.draw(sebedoLine.getAwtInstance());
-            }
-
-        }
+       }
 
         // redraw the drawStack
         for (Object o : DrawStack.get()) {
@@ -664,7 +636,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
      */
     @Override
     public void paint(Graphics g) {
-        super.paint(g);
+        //super.paint(g);
         if (isRasterDraw) {
             rasterDraw(g);
         } else {

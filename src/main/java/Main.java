@@ -52,7 +52,7 @@ public class Main implements ImageLoader, Runnable {
             // this is for things like frame rate; mainly a debugging tool
             // double dt1 = System.nanoTime();
 
-            PaintPanel.get().update();
+            // PaintPanel.get().update();
 
             /*
              * this halts processing for 5 milliseconds, allowing the CPU to do CPU stuff

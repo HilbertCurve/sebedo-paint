@@ -8,7 +8,7 @@ public class SebedoRectangle extends SebedoShape implements SebedoGraphic {
     }
 
     public SebedoRectangle(int x, int y, int width, int height) {
-        new Rectangle2D.Double(x, y, width, height);
+        awtInstance = new Rectangle2D.Double(x, y, width, height);
     }
 
     @Override
