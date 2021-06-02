@@ -15,19 +15,15 @@ public class Grid {
 
     public Grid(int pixelSize) {
         this.pixelSize = pixelSize;
-        this.initGrid(pixelSize);
+        this.initGrid(this.pixelSize);
     }
 
     public void initGrid(int pixelSize) {
         PaintPanel.strokeWeight = 0;
         Color color = colors[0];
-        for (int i = 0; i < PaintFrame.width; i += pixelSize) {
-            if (color == colors[0]) {
-                color = colors[1];
-            } else {
-                color = colors[0];
-            }
-            for (int j = 0; j < PaintFrame.height; j += pixelSize) {
+        Color color1 = colors[0];
+        for (int i = 0; i <= PaintFrame.width; i += pixelSize) {
+            for (int j = 0; j <= PaintFrame.height; j += pixelSize) {
                 PaintPanel.fillColor = color;
                 grid.add(new SebedoRectangle(i, j, i + pixelSize, j + pixelSize));
                 if (color == colors[0]) {
@@ -35,6 +31,15 @@ public class Grid {
                 } else {
                     color = colors[0];
                 }
+            }
+            if (color1 == color) {
+                if (color == colors[0]) {
+                    color = colors[1];
+                } else {
+                    color = colors[0];
+                }
+            } else {
+                color1 = color;
             }
         }
 
