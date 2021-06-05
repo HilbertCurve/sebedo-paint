@@ -1,6 +1,5 @@
 package sebedo.window;
 
-import sebedo.image.ImageLoader;
 import sebedo.shape.*;
 
 import javax.imageio.ImageIO;
@@ -11,6 +10,7 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -20,12 +20,11 @@ import java.util.*;
  * <br>
  * TODO: class is too big, must disperse
  */
-public final class PaintPanel extends JPanel implements Actions, ImageLoader, ActionListener {
+public final class PaintPanel extends JPanel implements Actions, ActionListener {
     /* Important static fields */
     private static PaintPanel paintPanel;
     private static BufferedImage bImage;
     private static Graphics2D g2d;
-    private static final Grid grid = new Grid(12);
     private static final RenderingHints r = new RenderingHints(
             RenderingHints.KEY_ANTIALIASING,
             RenderingHints.VALUE_ANTIALIAS_ON
@@ -44,12 +43,6 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     private static final JMenuItem saveAsMI = new JMenuItem("Save as");
     private static final JMenuItem newFileMI = new JMenuItem("New File");
 
-    private static final JMenuItem[] fileMenuItems = {
-            saveMI,
-            saveAsMI,
-            newFileMI
-    };
-
     /**
      * Menu of editing-related menu items.
      */
@@ -67,6 +60,12 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     private static final JMenuItem arcToolMI = new JMenuItem("Arc");
     private static final JMenuItem shapeToolMI = new JMenuItem("Shape");
     private static final JMenuItem selectToolMI = new JMenuItem("Select");
+
+    private static final JMenuItem[] fileMenuItems = {
+            saveMI,
+            saveAsMI,
+            newFileMI
+    };
 
     private static final JMenuItem[] editMenuItems = {
             copyMI,
@@ -90,26 +89,30 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     static {
         for (JMenuItem m : fileMenuItems) {
             fileMenu.add(m);
+            m.addActionListener(PaintPanel.get());
         }
 
         for (JMenuItem m : editMenuItems) {
             editMenu.add(m);
+            m.addActionListener(PaintPanel.get());
         }
 
         for (JMenuItem m : setToolMenuItems) {
             setToolMI.add(m);
+            m.addActionListener(PaintPanel.get());
         }
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
     }
 
+
     /**
      * Current selected tool.
      * @see PaintPanel#setSelectedTool
      * @see PaintPanel#switchTool
      */
-    private static Tools selectedTool = Tools.FREEHAND;
+    private static Tools selectedTool = Tools.SELECT;
     private static int toolIndex = 0;
 
     /* Used for mouse-related shenanigans. */
@@ -166,7 +169,9 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     public static int strokeWeight = 1;
 
     public static boolean isPainting;
+
     public static boolean isRasterDraw = true;
+
     public static boolean isBitArtDraw;
 
     /**
@@ -251,18 +256,6 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
             }
         });
 
-        // bind menuItems to their respective actions
-        /*for (Field f : PaintPanel.class.getDeclaredFields()) {
-            if (f.getGenericType().getTypeName().equals("javax.swing.JMenuItem")) {
-                try {
-                    JMenuItem mi = (JMenuItem) f.get(JMenuItem.class);
-                    mi.addActionListener(this);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
-
         // set booleans
         isBitArtDraw = true;
 
@@ -307,7 +300,6 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     public void setSelectedTool(Tools t) {
         selectedTool = t;
         toolIndex = t.ordinal();
-        update();
     }
 
     private void freeHandDraw() {
@@ -465,6 +457,11 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         repaint();
     }
 
+    public void setIsBitArtDraw(boolean bool) {
+        isBitArtDraw = bool;
+        update();
+    }
+
     private void open() {
         pressedKeys.clear(); // otherwise I get sticky keys
 
@@ -536,16 +533,13 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
                 e.printStackTrace();
                 System.out.println("Could not write file.");
             }
-
         }
-
-
     }
 
     /**
      * Updates {@code drawStack} whenever a listener is called, or when specified elsewhere.
      */
-    public void update() {
+    public synchronized void update() {
         switch (selectedTool) {
             case FREEHAND: freeHandDraw(); break;
             case ELLIPSE: ellipseDraw(); break;
@@ -556,8 +550,8 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
         }
 
         // update various components to match accepted state
-        if (ToolPanel.toolSelector.getSelectedItem() != PaintPanel.selectedTool.toString()) {
-            ToolPanel.toolSelector.setSelectedItem(PaintPanel.selectedTool.toString());
+        if (ToolPanel.get().toolSelector.getSelectedItem() != PaintPanel.selectedTool.toString()) {
+            ToolPanel.get().toolSelector.setSelectedItem(PaintPanel.selectedTool.toString());
         }
         if (PaintFrame.get().getBackground() != bgColor) {
             PaintFrame.get().setBackground(bgColor);
@@ -567,27 +561,37 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
     public void rasterDraw(Graphics g) {
         g2d = (Graphics2D) g;
 
-        // enable antialiasing
-        if (g2d.getRenderingHints() != r) {
-            g2d.setRenderingHints(r);
-        }
-        g2d.setColor(bgColor);
-        // g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
 
         // refresh the screen (to remove smearing effect)
-       if (isBitArtDraw) {
-           for (SebedoRectangle sr : grid.getGrid()) {
-               g2d.setColor(sr.getFill());
-               g2d.fill(sr.getAwtInstance());
-           }
-
-
-       }
+        if (isBitArtDraw) {
+            if (g2d.getRenderingHints() == r) {
+                g2d.setRenderingHints(null);
+            }
+            for (int i = 0; i < Math.ceil(16/Grid.gridSize); i++) {
+                for (int j = 0; j < Math.ceil(9/Grid.gridSize); j++) {
+                    g2d.drawImage(
+                        Grid.getScaledGrid(),
+                        new AffineTransform(
+                            1, 0,
+                            0, 1,
+                            i * Grid.getScaledGrid().getWidth(null), j * Grid.getScaledGrid().getHeight(null)),
+                            null);
+                }
+            }
+        } else {
+            // enable antialiasing
+            if (g2d.getRenderingHints() != r) {
+                g2d.setRenderingHints(r);
+            }
+            g2d.setColor(bgColor);
+            g2d.fill(new Rectangle(0, 0, this.getWidth(), this.getHeight()));
+        }
 
         // redraw the drawStack
         for (Object o : DrawStack.get()) {
             SebedoShape s = null;
             BufferedImage i = null;
+
             if (o instanceof SebedoShape) {
                 s = (SebedoShape) o;
             } else {
@@ -607,7 +611,6 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
                 g2d.drawImage(i, null, 0, 0);
             }
         }
-
     }
 
     // TODO: finish vectorDraw
@@ -636,7 +639,7 @@ public final class PaintPanel extends JPanel implements Actions, ImageLoader, Ac
      */
     @Override
     public void paint(Graphics g) {
-        //super.paint(g);
+        super.paint(g);
         if (isRasterDraw) {
             rasterDraw(g);
         } else {

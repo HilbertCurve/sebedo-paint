@@ -1,4 +1,3 @@
-import sebedo.image.ImageLoader;
 import sebedo.window.PaintFrame;
 import sebedo.window.PaintPanel;
 import sebedo.window.ToolFrame;
@@ -10,9 +9,9 @@ import javax.swing.*;
  * @see PaintFrame
  * @see Main#run
  */
-public class Main implements ImageLoader, Runnable {
-    public static PaintFrame paintFrame;
-    public static ToolFrame toolFrame;
+public class Main implements Runnable {
+    static PaintFrame paintFrame;
+    static ToolFrame toolFrame;
 
     static {
         try {
@@ -23,7 +22,7 @@ public class Main implements ImageLoader, Runnable {
         }
     }
 
-    public static Main main = new Main();
+    static Main main = new Main();
 
     static {
         try {
@@ -35,7 +34,6 @@ public class Main implements ImageLoader, Runnable {
     }
 
     public static void main(String[] args) {
-
         toolFrame = ToolFrame.get();
         paintFrame = PaintFrame.get();
         toolFrame.setLocation(paintFrame.getX() + paintFrame.getWidth() + 10, paintFrame.getY());
@@ -47,20 +45,21 @@ public class Main implements ImageLoader, Runnable {
      * Updates PaintPanel repeatedly.
      */
     @Override
+    @SuppressWarnings("BusyWait") // too lazy
     public void run() {
         while (PaintPanel.get().isEnabled()) {
             // this is for things like frame rate; mainly a debugging tool
             // double dt1 = System.nanoTime();
 
-            // PaintPanel.get().update();
+            PaintPanel.get().update();
 
             /*
-             * this halts processing for 5 milliseconds, allowing the CPU to do CPU stuff
+             * this halts processing for 3 milliseconds, allowing the CPU to do CPU stuff
              * for that amount of time (otherwise this program would use more memory than
              * necessary and could cause runtime issues).
              */
             try {
-                Thread.sleep(3);
+                Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

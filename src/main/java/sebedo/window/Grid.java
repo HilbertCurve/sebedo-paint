@@ -1,52 +1,33 @@
 package sebedo.window;
 
-import sebedo.shape.SebedoRectangle;
-
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.image.BufferedImage;
+
+import static sebedo.image.ImageLoader.loadImage;
 
 public class Grid {
-    ArrayList<SebedoRectangle> grid = new ArrayList<>();
-    int pixelSize;
-    final Color[] colors = new Color[] {
-            Color.GRAY,
-            Color.WHITE
-    };
+    private static Grid gridSingleton;
 
-    public Grid(int pixelSize) {
-        this.pixelSize = pixelSize;
-        this.initGrid(this.pixelSize);
-    }
+    private static final BufferedImage grid = loadImage("src/main/resources/ui/grid.png");
+    public static double gridSize = 2;
+    private static Image scaledGrid = grid.getScaledInstance((int) (600 * (gridSize / 6)), (int) (600 * (gridSize / 6)), 0);
 
-    public void initGrid(int pixelSize) {
-        PaintPanel.strokeWeight = 0;
-        Color color = colors[0];
-        Color color1 = colors[0];
-        for (int i = 0; i <= PaintFrame.width; i += pixelSize) {
-            for (int j = 0; j <= PaintFrame.height; j += pixelSize) {
-                PaintPanel.fillColor = color;
-                grid.add(new SebedoRectangle(i, j, i + pixelSize, j + pixelSize));
-                if (color == colors[0]) {
-                    color = colors[1];
-                } else {
-                    color = colors[0];
-                }
-            }
-            if (color1 == color) {
-                if (color == colors[0]) {
-                    color = colors[1];
-                } else {
-                    color = colors[0];
-                }
-            } else {
-                color1 = color;
-            }
+    private Grid() { }
+
+    public static Grid get() {
+        if (gridSingleton == null) {
+            gridSingleton = new Grid();
         }
 
-        System.out.println(grid.size());
+        return gridSingleton;
     }
 
-    public ArrayList<SebedoRectangle> getGrid() {
-        return grid;
+    public static Image getScaledGrid() {
+        return scaledGrid;
+    }
+
+    public void setGridSize(int size) {
+        gridSize = size;
+        scaledGrid = grid.getScaledInstance((int) (600 * (gridSize / 6)), (int) (600 * (gridSize / 6)), 0);
     }
 }

@@ -1,15 +1,16 @@
 package sebedo.window;
 
-import sebedo.image.ImageLoader;
-
 import javax.swing.*;
+
 import java.awt.*;
+
+import static sebedo.image.ImageLoader.loadImage;
 
 /**
  * Loads the PaintPanel on the JFrame.
  * @see PaintPanel
  */
-public class PaintFrame extends JFrame implements ImageLoader {
+public class PaintFrame extends JFrame {
     public static int width, height;
     private static final String title = "Sebedo Paint";
 
@@ -40,9 +41,9 @@ public class PaintFrame extends JFrame implements ImageLoader {
 
         setTitle(title);
         setSize(width, height);
+        setIconImage(loadImage("src/main/resources/testImages/cookie.png"));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setIconImage(loadImage("src/main/resources/images/cookie.png"));
 
         PaintPanel.get().requestFocusInWindow();
     }

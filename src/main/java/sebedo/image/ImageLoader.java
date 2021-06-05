@@ -7,9 +7,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public interface ImageLoader {
-
-    default BufferedImage[] loadImages(String[] filenames) {
+public class ImageLoader {
+    public static BufferedImage[] loadImages(String[] filenames) {
         File[] files = new File[filenames.length];
         for (int i = 0; i < filenames.length; i++) {
             files[i] = new File(filenames[i]);
@@ -18,7 +17,7 @@ public interface ImageLoader {
         return loadImages(files);
     }
 
-    default BufferedImage[] loadImages(File[] files) {
+    public static BufferedImage[] loadImages(File[] files) {
         BufferedImage[] images = new BufferedImage[files.length];
         try {
             for (int i = 0; i < files.length; i++) {
@@ -31,7 +30,13 @@ public interface ImageLoader {
         return images;
     }
 
-    default Image loadImage(String filename) {
-        return new ImageIcon(filename).getImage();
+    public static BufferedImage loadImage(String filepath) {
+        BufferedImage bi = null;
+        try {
+            bi = ImageIO.read(new File(filepath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bi;
     }
 }
