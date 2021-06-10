@@ -10,7 +10,6 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -23,6 +22,7 @@ import java.util.*;
 public final class PaintPanel extends JPanel implements Actions, ActionListener {
     /* Important static fields */
     private static PaintPanel paintPanel;
+    private static final KeyBindParser keyBindParser = new KeyBindParser("src/main/java/sebedo/keybindings.json");
     private static BufferedImage bImage;
     private static Graphics2D g2d;
     private static final RenderingHints r = new RenderingHints(
@@ -185,8 +185,6 @@ public final class PaintPanel extends JPanel implements Actions, ActionListener 
      * @see PaintPanel#get
      */
     private PaintPanel() {
-        // parse keybindings
-        KeyBindParser.parseKeyBinds();
         bImage = new BufferedImage(PaintFrame.width, PaintFrame.height, BufferedImage.TYPE_INT_ARGB);
 
         // add mouse and key listeners
@@ -236,7 +234,7 @@ public final class PaintPanel extends JPanel implements Actions, ActionListener 
 
                 if (!pressedKeys.isEmpty()) {
                     for (long l : actions) {
-                        if (pressedKeys.containsAll(KeyBindParser.getKeyBind(l))) {
+                        if (pressedKeys.containsAll(keyBindParser.getKeyBind(l))) {
                             doAction(l);
                         }
                     }

@@ -1,0 +1,10 @@
+{ "keybindings":[
+  { "keys": ["Ctrl","C"], "action": 0},
+  { "keys": ["Ctrl","P"], "action": 1},
+  { "keys": ["Ctrl","Z"], "action": 2},
+  { "keys": ["Ctrl","Y"], "action": 3},
+  { "keys": ["Ctrl","W"], "action": 4},
+  { "keys": ["Ctrl","T"], "action": 5},
+  { "keys": ["Ctrl","S"], "action": 6},
+  { "keys": ["Ctrl","O"], "action": 7}
+]}
